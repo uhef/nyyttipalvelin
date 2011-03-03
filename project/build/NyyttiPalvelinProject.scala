@@ -1,6 +1,7 @@
 import sbt._
+import de.element34.sbteclipsify._
 
-class NyyttiPalvelinProject(info: ProjectInfo) extends DefaultWebProject(info) with IdeaProject {
+class NyyttiPalvelinProject(info: ProjectInfo) extends DefaultWebProject(info) with IdeaProject with Eclipsify {
   val scalatraVersion = "2.0.0.M2"
   val scalatra = "org.scalatra" %% "scalatra" % scalatraVersion withSources()
   val servletApi = "org.mortbay.jetty" % "servlet-api" % "2.5-20081211" % "provided" withSources()
