@@ -59,11 +59,6 @@ class AlgoholismFilter extends ScalatraFilter {
         case Some(o) => { render(findItemsFrom(o)); }
         case None => { println("no match"); render(List()); }
     }
-    /*
-    json \\ "a" match {
-      case JField("a", JString("lol")) => render(List(1,3))
-      case _ => render(List())
-    } */
   }
 
   private def parseRequestObjectFrom(json: JsonAST.JValue): Option[KnapsackRequest] = {
