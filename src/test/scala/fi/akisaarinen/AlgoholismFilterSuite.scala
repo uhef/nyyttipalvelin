@@ -22,14 +22,14 @@ class AlgoholismFilterSuite extends ScalatraFunSuite with ShouldMatchers {
   test("POST / returns status 200 with empty body") {
     post("/") { 
       status should equal (200)
-      body should equal("")
+      body should equal("{}\n")
     }
   }
 
 	test("POST / returns empty solution with empty contents") {
-    post("/", """{ "name" : "Empty contents", "timeout" : 1000, "contents" : [] }""", Map[String,String]()) { 
+    post("/", """{ "name" : "Empty contents" }""", Map[String,String]()) { 
       status should equal (200)
-      body should equal("[]\n")
+      body should equal("{}\n")
     }		
 	}
 
@@ -44,7 +44,7 @@ class AlgoholismFilterSuite extends ScalatraFunSuite with ShouldMatchers {
     val testJson = """{ "a" : "not_funny" }"""
     post("/", testJson, Map[String,String]()) { 
       status should equal (200)
-      body should equal("""{"a":"not_funny"}""" + "\n")
+      body should equal("{}\n")
     }
   }
 
@@ -52,7 +52,7 @@ class AlgoholismFilterSuite extends ScalatraFunSuite with ShouldMatchers {
     val testJson = """{ "foo" : "bar" }"""
     post("/", testJson, Map[String,String]()) { 
       status should equal (200)
-      body should equal("""{"foo":"bar"}""" + "\n")
+      body should equal("{}\n")
     }
   }
 

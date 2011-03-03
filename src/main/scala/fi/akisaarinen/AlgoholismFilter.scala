@@ -31,7 +31,7 @@ class AlgoholismFilter extends ScalatraFilter {
       contentType = "application/json"
       compact(process(json)) + "\n"
     } else {
-      ""
+      "{}\n"
     }
   }
 
@@ -55,12 +55,12 @@ class AlgoholismFilter extends ScalatraFilter {
     import net.liftweb.json.JsonDSL._
 
     parseRequestObjectFrom(json) match {
-        case Some(o) => { println(o); println(o.c); ProcessingActor ! o.c(1); }
+        case Some(o) => { println(o); println(o.contents); ProcessingActor ! o.contents(1); }
         case None => {}
     }
     json \\ "a" match {
       case JField("a", JString("lol")) => render(List(1,3))
-      case _ => render(json)
+      case _ => render(List())
     }
   }
 
@@ -76,9 +76,9 @@ class AlgoholismFilter extends ScalatraFilter {
   }
 }
 
-case class MyCField(id: Int, e: List[Int], f: Int)
+case class MyCField(id: Int, weight: List[Int], value: Int)
 
-case class MyRequest(a: String, b: Int, c: List[MyCField], g: List[Int])
+case class MyRequest(name: String, timeout: Int, contents: List[MyCField], capacity: List[Int])
 
 object ProcessingActor extends Actor {
   def act() {
