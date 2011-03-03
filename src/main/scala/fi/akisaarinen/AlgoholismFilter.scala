@@ -56,7 +56,7 @@ class AlgoholismFilter extends ScalatraFilter {
     import net.liftweb.json.JsonDSL._
 
     parseRequestObjectFrom(json) match {
-        case Some(o) => { println(o); println(o.contents); render(findItemsFrom(o)); }
+        case Some(o) => { render(findItemsFrom(o)); }
         case None => { println("no match"); render(List()); }
     }
     /*
