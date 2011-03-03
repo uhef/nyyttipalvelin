@@ -17,13 +17,14 @@ class ActorControllerSuite extends FunSuite with ShouldMatchers {
     val controller = new ActorController
     val result = controller.filterFittingItems(List(ContentsItem("foo", List(1, 1, 1), 100)), Weight(List(5, 5, 5)))
     result.size should equal (1)
-    result(0) should equal (ContentsItem("foo", List(1, 1, 1), 100))
+    result should equal (Some(List(ContentsItem("foo", List(1, 1, 1), 100))))
   }
 
   test("ActorController should remove items that don't fit into knapsack") {
     val controller = new ActorController
     val result = controller.filterFittingItems(List(ContentsItem("foo", List(8, 5, 2), 100), ContentsItem("foo", List(2, 9, 0), 100)), Weight(List(5, 5, 5)))
     result.size should equal (0)
+    result should equal (None)
   }
 
 }

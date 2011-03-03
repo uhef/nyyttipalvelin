@@ -12,8 +12,12 @@ import scala.actors.Actor._
 import net.liftweb.json.JsonAST.JValue
 
 class ActorController {
-  def filterFittingItems(items: List[ContentsItem], capacity: Weight) : List[ContentsItem] = {
-    items.filter(x => { capacity.fits(x.contentsWeight) } )
+  def filterFittingItems(items: List[ContentsItem], capacity: Weight) : Option[List[ContentsItem]] = {
+    val filtered = items.filter(x => { capacity.fits(x.contentsWeight) } )
+    filtered match {
+      case List() => None
+      case _ => Option(filtered)
+    }
   }
 }
 
