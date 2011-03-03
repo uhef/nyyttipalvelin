@@ -10,6 +10,7 @@ import net.liftweb.json.JsonParser._
 import scala.actors._
 import scala.actors.Actor._
 import net.liftweb.json.JsonAST.JValue
+import collection.immutable.List
 
 class ActorController {
   def filterFittingItems(items: List[ContentsItem], capacity: Weight) : Option[List[ContentsItem]] = {
@@ -23,7 +24,13 @@ class ActorController {
   private def average(x: ContentsItem) = x.value / (x.weight.sum)
 
   def sortToOptimizedOrder(items: List[ContentsItem]) : List[ContentsItem] = {
-      items.sortWith((x, y) => { average(x) > average(y) })
+    val algorithms: List[(List[ContentsItem]) => List[ContentsItem]] = List(sortToOptimizedOrderImpl)
+    val resultsFromAlgorithms: List[List[ContentsItem]] = nyyttimap.runAlgorithms(items, algorithms)
+    resultsFromAlgorithms(0)
+  }
+
+  private def sortToOptimizedOrderImpl(items: List[ContentsItem]) : List[ContentsItem] = {
+    items.sortWith((x, y) => { average(x) > average(y) })
   }
 }
 
