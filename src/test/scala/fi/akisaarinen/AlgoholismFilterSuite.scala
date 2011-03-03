@@ -33,6 +33,13 @@ class AlgoholismFilterSuite extends ScalatraFunSuite with ShouldMatchers {
     }
   }
 
+  test("POST / returns knapsack with several items that fit together") {
+    post("/", """{ "name" : "Large contents", "timeout" : 60000, "contents":[{"id":"1","weight":[8180,9604],"value":441},{"id":"2","weight":[349,463],"value":400},{"id":"3","weight":[123,98],"value":440}],"capacity":[2000,2000] }""", Map[String,String]()) {
+      status should equal (200)
+      body should equal("""["3","2"]""" + "\n")
+    }
+  }
+
 	test("POST / returns empty solution with empty contents") {
     post("/", """{ "name" : "Empty contents" }""", Map[String,String]()) { 
       status should equal (200)
