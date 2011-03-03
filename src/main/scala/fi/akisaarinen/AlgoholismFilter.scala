@@ -80,9 +80,8 @@ class AlgoholismFilter extends ScalatraFilter {
 
   private def findItemsFrom(req: KnapsackRequest) : List[String] = {
     val searchResult: Option[ContentsItem] = req.contents.find(x => req.capacityAsWeight.fits(x.contentsWeight))
-    println(searchResult)
     searchResult match {
-      case Some(ci) => println(ci.id); List(ci.id)
+      case Some(ci) => List(ci.id)
       case None => List()
     }
   }
@@ -90,9 +89,7 @@ class AlgoholismFilter extends ScalatraFilter {
 
 case class Weight(dimensions: List[Int]) {
   def fits(other: Weight) : Boolean = {
-    println(this); println(other);
     val dimensionComparisonTuples = dimensions.zip(other.dimensions)
-    println(dimensionComparisonTuples)
     dimensionComparisonTuples.filter( x => { (x._1 < x._2) } ).isEmpty
   }
 }
