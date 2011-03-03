@@ -64,11 +64,11 @@ class AlgoholismFilter extends ScalatraFilter {
     }
   }
 
-  private def parseRequestObjectFrom(json: JsonAST.JValue): Option[MyRequest] = {
+  private def parseRequestObjectFrom(json: JsonAST.JValue): Option[KnapsackRequest] = {
     implicit val formats = net.liftweb.json.DefaultFormats
 
     try {
-      val o = json.extract[MyRequest]
+      val o = json.extract[KnapsackRequest]
       return Some(o);
     } catch {
       case ex: net.liftweb.json.MappingException => println("Parse error"); return None
@@ -76,15 +76,15 @@ class AlgoholismFilter extends ScalatraFilter {
   }
 }
 
-case class MyCField(id: String, weight: List[Int], value: Int)
+case class ContentsItem(id: String, weight: List[Int], value: Int)
 
-case class MyRequest(name: String, timeout: Int, contents: List[MyCField], capacity: List[Int])
+case class KnapsackRequest(name: String, timeout: Int, contents: List[ContentsItem], capacity: List[Int])
 
 object ProcessingActor extends Actor {
   def act() {
     loop {
       react {
-        case (cField: MyCField) => println("Got C field with id " + cField.id)
+        case (cField: ContentsItem) => println("Got C field with id " + cField.id)
         case msg => println("Unhandled message: " + msg)
       }
     }
