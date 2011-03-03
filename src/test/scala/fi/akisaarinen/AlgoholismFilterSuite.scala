@@ -26,6 +26,13 @@ class AlgoholismFilterSuite extends ScalatraFunSuite with ShouldMatchers {
     }
   }
 
+	test("POST / returns empty solution with empty contents") {
+    post("/", """{ "name" : "Empty contents", "timeout" : 1000, "contents" : [] }""", Map[String,String]()) { 
+      status should equal (200)
+      body should equal("[]\n")
+    }		
+	}
+
   test("POST / returns fake algorithm reply with correct magic value of 'a'") {
     post("/", """{ "a" : "lol" }""", Map[String,String]()) { 
       status should equal (200)
