@@ -39,7 +39,7 @@ class AlgoholismFilterSuite extends ScalatraFunSuite with ShouldMatchers {
       body should equal("[1,3]\n")
     }
   }
-  
+
   test("POST / returns compacted JSON with line change with wrong value of 'a'") {
     val testJson = """{ "a" : "not_funny" }"""
     post("/", testJson, Map[String,String]()) { 

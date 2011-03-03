@@ -56,7 +56,7 @@ class AlgoholismFilter extends ScalatraFilter {
 
     parseRequestObjectFrom(json) match {
         case Some(o) => { println(o); println(o.contents); ProcessingActor ! o.contents(1); }
-        case None => {}
+        case None => { println("no match")}
     }
     json \\ "a" match {
       case JField("a", JString("lol")) => render(List(1,3))
@@ -71,12 +71,12 @@ class AlgoholismFilter extends ScalatraFilter {
       val o = json.extract[MyRequest]
       return Some(o);
     } catch {
-      case ex: net.liftweb.json.MappingException => return None
+      case ex: net.liftweb.json.MappingException => println("Parse error"); return None
     }
   }
 }
 
-case class MyCField(id: Int, weight: List[Int], value: Int)
+case class MyCField(id: String, weight: List[Int], value: Int)
 
 case class MyRequest(name: String, timeout: Int, contents: List[MyCField], capacity: List[Int])
 
