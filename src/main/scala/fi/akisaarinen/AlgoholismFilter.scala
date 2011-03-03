@@ -72,10 +72,17 @@ class AlgoholismFilter extends ScalatraFilter {
   }
 
   private def findItemsFrom(req: KnapsackRequest): List[String] = {
+    val debug = false
     val controller = new ActorController
     val filtered = controller.filterFittingItems(req.contents, req.capacityAsWeight)
     filtered match {
-      case Some(l) => iterateUntilFull(req.capacityAsWeight, Nil, controller.sortToOptimizedOrder(l)).map(_.id)
+      case Some(l) => {
+        val results = iterateUntilFull(req.capacityAsWeight, Nil, controller.sortToOptimizedOrder(l))
+        if (debug) {
+          println("Total value: " + results.map(_.value).foldLeft(0)(_ + _))
+        }
+        results.map(_.id)
+      }
       case None => List()
     }
   }
