@@ -12,19 +12,22 @@ import org.scalatest.matchers.ShouldMatchers
  */
 
 class ActorControllerSuite extends FunSuite with ShouldMatchers {
-
+  val controller = new ActorController
   test("ActorController should keep item that fits into knapsack") {
-    val controller = new ActorController
     val result = controller.filterFittingItems(List(ContentsItem("foo", List(1, 1, 1), 100)), Weight(List(5, 5, 5)))
     result.size should equal (1)
     result should equal (Some(List(ContentsItem("foo", List(1, 1, 1), 100))))
   }
 
   test("ActorController should remove items that don't fit into knapsack") {
-    val controller = new ActorController
     val result = controller.filterFittingItems(List(ContentsItem("foo", List(8, 5, 2), 100), ContentsItem("foo", List(2, 9, 0), 100)), Weight(List(5, 5, 5)))
     result.size should equal (0)
     result should equal (None)
+  }
+
+  test("ActorController should order by value / average weight") {
+    val result = controller.sortToOptimizedOrder(List(ContentsItem("foo", List(5, 10, 15), 50), ContentsItem("foo", List(2, 4, 6), 40), ContentsItem("foo", List(1, 4, 6), 574)))
+    result should equal (List( ContentsItem("foo", List(1, 4, 6), 574), ContentsItem("foo", List(2, 4, 6), 40), ContentsItem("foo", List(5, 10, 15), 50)))
   }
 
 }

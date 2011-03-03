@@ -19,6 +19,12 @@ class ActorController {
       case _ => Option(filtered)
     }
   }
+
+  private def average(x: ContentsItem) = x.value / (x.weight.sum)
+
+  def sortToOptimizedOrder(items: List[ContentsItem]) : List[ContentsItem] = {
+      items.sortWith((x, y) => { average(x) > average(y) })
+  }
 }
 
 
