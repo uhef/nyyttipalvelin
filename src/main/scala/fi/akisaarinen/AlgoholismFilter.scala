@@ -54,33 +54,28 @@ class AlgoholismFilter extends ScalatraFilter {
   private def process(json: JsonAST.JValue): text.Document = {
     import net.liftweb.json.JsonAST._
     import net.liftweb.json.JsonDSL._
-
+    
     parseRequestObjectFrom(json) match {
-        case Some(o) => { render(findItemsFrom(o)); }
-        case None => { println("no match"); render(List()); }
+      case Some(o) => render(findItemsFrom(o))
+      case None => render(List())
     }
   }
 
   private def parseRequestObjectFrom(json: JsonAST.JValue): Option[KnapsackRequest] = {
     implicit val formats = net.liftweb.json.DefaultFormats
-    implicit def listToWeight(list: List[Int]) : Weight = Weight(list)
-
+    implicit def listToWeight(list: List[Int]): Weight = Weight(list)
     try {
-      val o = json.extract[KnapsackRequest]
-      return Some(o);
+      Some(json.extract[KnapsackRequest]);
     } catch {
-      case ex: net.liftweb.json.MappingException => println("Parse error"); return None
+      case _ => None
     }
   }
 
-  private def findItemsFrom(req: KnapsackRequest) : List[String] = {
+  private def findItemsFrom(req: KnapsackRequest): List[String] = {
     val controller = new ActorController
     val filtered = controller.filterFittingItems(req.contents, req.capacityAsWeight)
     filtered match {
-      case Some(l) => {
-        val itemsInResult = iterateUntilFull(req.capacityAsWeight, Nil, controller.sortToOptimizedOrder(l))
-        itemsInResult.map(_.id)
-      }
+      case Some(l) => iterateUntilFull(req.capacityAsWeight, Nil, controller.sortToOptimizedOrder(l)).map(_.id)
       case None => List()
     }
   }
@@ -90,7 +85,7 @@ class AlgoholismFilter extends ScalatraFilter {
       case Nil => knapsack
       case nextItem :: remainingItems => {
         val knapsackPlusNew = nextItem :: knapsack
-        val totalWeight: Weight = knapsackPlusNew.map(_.contentsWeight).foldLeft(Weight(List(0,0,0)))(_.plus(_))
+        val totalWeight = knapsackPlusNew.map(_.contentsWeight).foldLeft(Weight(List(0,0,0)))(_.plus(_))
         if (capacity.fits(totalWeight)) {
           iterateUntilFull(capacity, knapsackPlusNew, remainingItems)
         } else {
@@ -102,12 +97,9 @@ class AlgoholismFilter extends ScalatraFilter {
 }
 
 case class Weight(dimensions: List[Int]) {
-  def fits(other: Weight) : Boolean = {
-    val dimensionComparisonTuples = dimensions.zip(other.dimensions)
-    dimensionComparisonTuples.filter( x => { (x._1 < x._2) } ).isEmpty
-  }
+  def fits(other: Weight): Boolean = dimensions.zip(other.dimensions).filter( x => { (x._1 < x._2) } ).isEmpty
 
-  def plus(other: Weight) : Weight = Weight(dimensions.zip(other.dimensions).map(x => x._1 + x._2))
+  def plus(other: Weight): Weight = Weight(dimensions.zip(other.dimensions).map(x => x._1 + x._2))
 }
 
 case class ContentsItem(id: String, weight: List[Int], value: Int) {
