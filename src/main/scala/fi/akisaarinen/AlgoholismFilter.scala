@@ -9,6 +9,7 @@ import net.liftweb.json.JsonParser
 import net.liftweb.json.JsonParser._
 import scala.actors._
 import scala.actors.Actor._
+import net.liftweb.json.JsonAST.JValue
 
 class AlgoholismFilter extends ScalatraFilter {
 
@@ -55,17 +56,19 @@ class AlgoholismFilter extends ScalatraFilter {
     import net.liftweb.json.JsonDSL._
 
     parseRequestObjectFrom(json) match {
-        case Some(o) => { println(o); println(o.contents); ProcessingActor ! o.contents(1); }
-        case None => { println("no match")}
+        case Some(o) => { println(o); println(o.contents); render(findItemsFrom(o)); }
+        case None => { println("no match"); render(List()); }
     }
+    /*
     json \\ "a" match {
       case JField("a", JString("lol")) => render(List(1,3))
       case _ => render(List())
-    }
+    } */
   }
 
   private def parseRequestObjectFrom(json: JsonAST.JValue): Option[KnapsackRequest] = {
     implicit val formats = net.liftweb.json.DefaultFormats
+    implicit def listToWeight(list: List[Int]) : Weight = Weight(list)
 
     try {
       val o = json.extract[KnapsackRequest]
@@ -74,11 +77,33 @@ class AlgoholismFilter extends ScalatraFilter {
       case ex: net.liftweb.json.MappingException => println("Parse error"); return None
     }
   }
+
+  private def findItemsFrom(req: KnapsackRequest) : List[String] = {
+    val searchResult: Option[ContentsItem] = req.contents.find(x => req.capacityAsWeight.fits(x.contentsWeight))
+    println(searchResult)
+    searchResult match {
+      case Some(ci) => println(ci.id); List(ci.id)
+      case None => List()
+    }
+  }
 }
 
-case class ContentsItem(id: String, weight: List[Int], value: Int)
+case class Weight(dimensions: List[Int]) {
+  def fits(other: Weight) : Boolean = {
+    println(this); println(other);
+    val dimensionComparisonTuples = dimensions.zip(other.dimensions)
+    println(dimensionComparisonTuples)
+    dimensionComparisonTuples.filter( x => { (x._1 < x._2) } ).isEmpty
+  }
+}
 
-case class KnapsackRequest(name: String, timeout: Int, contents: List[ContentsItem], capacity: List[Int])
+case class ContentsItem(id: String, weight: List[Int], value: Int) {
+  def contentsWeight = Weight(weight)
+}
+
+case class KnapsackRequest(name: String, timeout: Int, contents: List[ContentsItem], capacity: List[Int]) {
+  def capacityAsWeight = Weight(capacity)
+}
 
 object ProcessingActor extends Actor {
   def act() {

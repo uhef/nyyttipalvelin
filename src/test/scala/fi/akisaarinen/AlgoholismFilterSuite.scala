@@ -26,19 +26,19 @@ class AlgoholismFilterSuite extends ScalatraFunSuite with ShouldMatchers {
     }
   }
 
+  test("POST / returns knapsack with item that fits") {
+    post("/", """{ "name" : "Large contents", "timeout" : 60000, "contents":[{"id":"1","weight":[8180,9604],"value":441},{"id":"2","weight":[349,463],"value":400},{"id":"3","weight":[9534,9462],"value":440}],"capacity":[2000,2000] }""", Map[String,String]()) {
+      status should equal (200)
+      body should equal("""["2"]""" + "\n")
+    }
+  }
+
 	test("POST / returns empty solution with empty contents") {
     post("/", """{ "name" : "Empty contents" }""", Map[String,String]()) { 
       status should equal (200)
       body should equal("{}\n")
     }		
 	}
-
-  test("POST / returns fake algorithm reply with correct magic value of 'a'") {
-    post("/", """{ "a" : "lol" }""", Map[String,String]()) { 
-      status should equal (200)
-      body should equal("[1,3]\n")
-    }
-  }
 
   test("POST / returns compacted JSON with line change with wrong value of 'a'") {
     val testJson = """{ "a" : "not_funny" }"""
