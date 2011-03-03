@@ -76,9 +76,22 @@ class AlgoholismFilter extends ScalatraFilter {
   private def findItemsFrom(req: KnapsackRequest) : List[String] = {
     val controller = new ActorController
     val filtered = controller.filterFittingItems(req.contents, req.capacityAsWeight)
-    filtered match {
-      case Some(l) => List(l.head.id)
-      case None => List()
+    val itemsInResult = iterateUntilFull(req.capacityAsWeight, Nil, filtered.get)
+    itemsInResult.map(_.id)
+  }
+
+  def iterateUntilFull(capacity: Weight, knapsack: List[ContentsItem], remainingList: List[ContentsItem]): List[ContentsItem] = {
+    remainingList match {
+      case Nil => knapsack
+      case nextItem :: remainingItems => {
+        val knapsackPlusNew = nextItem :: knapsack
+        val totalWeight: Weight = knapsackPlusNew.map(_.contentsWeight).foldLeft(Weight(List(0,0,0)))(_.plus(_))
+        if (capacity.fits(totalWeight)) {
+          iterateUntilFull(capacity, knapsackPlusNew, remainingItems)
+        } else {
+          knapsack
+        }
+      }
     }
   }
 }
@@ -88,6 +101,8 @@ case class Weight(dimensions: List[Int]) {
     val dimensionComparisonTuples = dimensions.zip(other.dimensions)
     dimensionComparisonTuples.filter( x => { (x._1 < x._2) } ).isEmpty
   }
+
+  def plus(other: Weight) : Weight = Weight(dimensions.zip(other.dimensions).map(x => x._1 + x._2))
 }
 
 case class ContentsItem(id: String, weight: List[Int], value: Int) {
