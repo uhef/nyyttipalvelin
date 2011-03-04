@@ -23,4 +23,16 @@ class NyyttiPalvelinProject(info: ProjectInfo) extends DefaultWebProject(info) w
   val fuseSourceSnapshots = "FuseSource Snapshot Repository" at "http://repo.fusesource.com/nexus/content/repositories/snapshots"
 
   System.setProperty("org.mortbay.jetty.Request.maxFormContentSize", "5000000")
+
+  lazy val disableDebug = task {
+    println("Disable debug!")
+    System.setProperty("nyytti.debug", "false")
+    None
+  }
+
+  lazy val enableDebug = task {
+    println("Enable debug!")
+    System.setProperty("nyytti.debug", "true")
+    None
+  }  
 }

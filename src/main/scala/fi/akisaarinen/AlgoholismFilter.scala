@@ -12,6 +12,11 @@ import scala.actors.Actor._
 import net.liftweb.json.JsonAST.JValue
 
 class AlgoholismFilter extends ScalatraFilter {
+  val debug = System.getProperty("nyytti.debug") match {
+    case value: String => value.toBoolean
+    case _ => false
+  }
+  println("Server debug = " + debug)
 
   before {
     ProcessingActor.start()
@@ -72,7 +77,6 @@ class AlgoholismFilter extends ScalatraFilter {
   }
 
   private def findItemsFrom(req: KnapsackRequest): List[String] = {
-    val debug = false
     val controller = new ActorController
     val filtered = controller.filterFittingItems(req.contents, req.capacityAsWeight)
     filtered match {
