@@ -7,6 +7,11 @@ class ItemAverageWeightsSorter extends Algorithm {
     sort(capacity, items)
   }
 
+  def pack(items: List[ContentsItem], capacity: Weight, resultsProcessor: Actor) = {
+    val resultWithPossiblyTooMuch = internalPack(items, capacity)
+    resultsProcessor ! iterateUntilFull(capacity, Nil, resultWithPossiblyTooMuch)
+  }
+
   def sort(capacity: Weight, input: List[ContentsItem]): List[ContentsItem] = {
     val dimImp: List[Double] = calculateDimensionWeightAverages(input).zip(capacity.dimensions).map((avgWithCap) => { avgWithCap._1 / avgWithCap._2 })
     input.sortWith((x, y) => { (x.value / calculateDenominator(x.weight.zip(dimImp))) > (y.value / calculateDenominator(y.weight.zip(dimImp))) })
