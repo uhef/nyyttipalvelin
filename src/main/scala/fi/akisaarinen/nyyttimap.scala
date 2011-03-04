@@ -27,7 +27,7 @@ object Nyyttimap {
   type SortAlgorithm = List[ContentsItem] => List[ContentsItem]
   type ResultsOfAlgorithms = List[List[ContentsItem]]
 
-  val safetyMarginMillis = 3000;
+  val safetyMarginMillis = 10000;
 
   def max(x: Long, y: Long) = if(x >= y) x else y
 
