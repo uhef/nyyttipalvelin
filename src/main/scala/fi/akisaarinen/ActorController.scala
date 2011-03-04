@@ -38,7 +38,7 @@ trait Algorithm {
 }
 
 class ActorController {
-  def filterFittingItems(items: List[ContentsItem], capacity: Weight) : Option[List[ContentsItem]] = {
+  def filterFittingItems(items: List[ContentsItem], capacity: Weight): Option[List[ContentsItem]] = {
     items.filter(x => { capacity.fits(x.contentsWeight) }) match {
       case List() => None
       case results => Option(results)
@@ -51,17 +51,16 @@ class ActorController {
     val itemAverageWeightSorter = new ItemAverageWeightsSorter
     val brute = new BruteForceFillerAlgorithm
     val algorithms: List[Algorithm] = List(weightSorter, capacitySorter, itemAverageWeightSorter, brute)
-    val resultsFromAlgorithms: ResultsOfAlgorithms = Nyyttimap.runAlgorithms(items, algorithms, capacity, timeout)
-
-    ValueUtils.bestList(resultsFromAlgorithms)
+    filterFittingItems(items, capacity) match {
+      case Some(filteredItems) => ValueUtils.bestList(Nyyttimap.runAlgorithms(filteredItems, algorithms, capacity, timeout))
+      case None => List()
+    }
   }
 }
 
 
 object ValueUtils {
-
   def calculateListValue(items: List[ContentsItem]) = items.map(_.value).foldLeft(0)(_ + _)
-
   def maxList(a: (List[ContentsItem], Int), b: (List[ContentsItem], Int)) = if(calculateListValue(a._1) >= calculateListValue(b._1)) a else b
 
   def bestList(lists: ResultsOfAlgorithms) = lists.zip(lists.map(calculateListValue(_))) match {

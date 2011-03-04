@@ -13,10 +13,6 @@ import net.liftweb.json.JsonAST.JValue
 
 class AlgoholismFilter extends ScalatraFilter {
 
-  before {
-    ProcessingActor.start()
-  }
-
   get("/") {
     <html>
       <body>
@@ -73,17 +69,11 @@ class AlgoholismFilter extends ScalatraFilter {
 
   private def findItemsFrom(req: KnapsackRequest): List[String] = {
     val controller = new ActorController
-    val filtered = controller.filterFittingItems(req.contents, req.capacityAsWeight)
-    filtered match {
-      case Some(l) => {
-        val results = controller.chooseItemsToKnapsack(l, req.capacityAsWeight, req.timeout)
-        if (Environment.debug) {
-          println("Total value: " + ValueUtils.calculateListValue(results))
-        }
-        results.map(_.id)
-      }
-      case None => List()
+    val results = controller.chooseItemsToKnapsack(req.contents, req.capacityAsWeight, req.timeout)
+    if (Environment.debug) {
+      println("Total value: " + ValueUtils.calculateListValue(results))
     }
+    results.map(_.id)
   }
 }
 
@@ -110,34 +100,3 @@ case class ContentsItem(id: String, weight: List[Int], value: Int) {
 case class KnapsackRequest(name: String, timeout: Int, contents: List[ContentsItem], capacity: List[Int]) {
   def capacityAsWeight = Weight(capacity)
 }
-
-object ProcessingActor extends Actor {
-  def act() {
-    loop {
-      react {
-        case (cField: ContentsItem) => println("Got C field with id " + cField.id)
-        case msg => println("Unhandled message: " + msg)
-      }
-    }
-  }
-}
-
-case class Enqueue(message: Any)
-
-case class Dequeue(actor: Actor)
-
-object ProcessingQueue extends Reactor[Any] {
-  import scala.collection.mutable.Queue
-
-  private val queue = new Queue[Any]
-
-  def act() {
-    loop {
-      react {
-        case Enqueue(d) => queue enqueue d
-        case Dequeue(a) if queue.nonEmpty => a ! (queue dequeue)
-        }
-    }
-  }
-}
-
