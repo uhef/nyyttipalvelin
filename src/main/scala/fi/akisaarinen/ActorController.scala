@@ -27,7 +27,7 @@ class ActorController {
     val weightSorter = new WeightSumSorter
     val capacitySorter = new CapacityDimensionWeightedSorter(capacity)
     val algorithms: List[Algorithm] = List(weightSorter.sort, capacitySorter.sort)
-    val resultsFromAlgorithms: AlgorithmResults = Nyyttimap.runAlgorithms(items, algorithms, capacity)
+    val resultsFromAlgorithms: ResultsOfAlgorithms = Nyyttimap.runAlgorithms(items, algorithms, capacity)
 
     ValueUtils.bestList(resultsFromAlgorithms)
   }
@@ -40,7 +40,7 @@ object ValueUtils {
 
   def maxList(a: (List[ContentsItem], Int), b: (List[ContentsItem], Int)) = if(calculateListValue(a._1) >= calculateListValue(b._1)) a else b
 
-  def bestList(lists: AlgorithmResults) = lists.zip(lists.map(calculateListValue(_))).reduceRight(maxList(_,_))._1
+  def bestList(lists: ResultsOfAlgorithms) = lists.zip(lists.map(calculateListValue(_))).reduceRight(maxList(_,_))._1
 }
 
 

@@ -6,15 +6,15 @@ import scala.actors.Actor._
 object Nyyttimap {
 
   type Algorithm = List[ContentsItem] => List[ContentsItem]
-  type AlgorithmResults = List[List[ContentsItem]]
+  type ResultsOfAlgorithms = List[List[ContentsItem]]
 
-  def runAlgorithms(input: List[ContentsItem], algorithms: List[Algorithm], capacity: Weight): AlgorithmResults = {
+  def runAlgorithms(input: List[ContentsItem], algorithms: List[Algorithm], capacity: Weight): ResultsOfAlgorithms = {
     val s = self
     val actors = algorithms.map(a => actor { exec(s, a, input, capacity)})
     gather(actors, Nil)
   }
 
-  private def gather(actors: List[Actor], accumulatedResults: AlgorithmResults): AlgorithmResults =
+  private def gather(actors: List[Actor], accumulatedResults: ResultsOfAlgorithms): ResultsOfAlgorithms =
     actors match {
       case a :: as =>
         receive {
