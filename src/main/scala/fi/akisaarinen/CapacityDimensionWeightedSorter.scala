@@ -1,18 +1,14 @@
 package fi.akisaarinen
 
-/**
- * Created by IntelliJ IDEA.
- * User: tuomjarv
- * Date: 3/4/11
- * Time: 9:00 AM
- * To change this template use File | Settings | File Templates.
- */
-
 class CapacityDimensionWeightedSorter(capacity: Weight) {
   val max = capacity.dimensions.max
   val weightFactors = capacity.dimensions.map(x => { 1.0 - int2double(x) / int2double(max) })
 
+  private def calculateDenominator(weightFactorPairs: List[(Int, Double)]) : Double = {
+    weightFactorPairs.map((t) => { int2double(t._1) * t._2 }).sum
+  }
+
   def sort(input: List[ContentsItem]) : List[ContentsItem] = {
-    input.sortWith((x, y) => { (x.value / x.weight.zip(weightFactors).map { case (t1, t2) => { t1 * t2 } } .sum) > (y.value / y.weight.zip(weightFactors).map { case (t1, t2) => { t1 * t2 } } .sum) })
+    input.sortWith((x, y) => { (x.value / calculateDenominator(x.weight.zip(weightFactors))) > (y.value / calculateDenominator(y.weight.zip(weightFactors))) })
   }
 }
