@@ -16,6 +16,10 @@ class ItemAverageWeightsSorterSuite extends FunSuite with ShouldMatchers {
     val sorter = new ItemAverageWeightsSorter
     val dimensionWeightAverages = sorter.calculateDimensionWeightAverages(List(createItemWithoutValue(List(2, 5, 3)), createItemWithoutValue(List(2, 2, 2)), createItemWithoutValue(List(8, 8, 1))))
     dimensionWeightAverages should equal (List(4, 5, 2))
+
+    sorter.calculateDimensionWeightAverages(List()) should equal (List())
+
+    sorter.calculateDimensionWeightAverages(List(createItemWithoutValue(List(4, 5, 2)))) should equal (List(4, 5, 2))
   }
 
 }
