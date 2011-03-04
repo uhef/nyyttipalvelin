@@ -17,8 +17,9 @@ class CapacityDimensionWeightedSorterSuite extends FunSuite with ShouldMatchers 
   }
 
   test("CapacityDimensionWeightedSorter should sort items according to most constrained weight") {
-    val sorter = new CapacityDimensionWeightedSorter(Weight(List(10, 5, 2)))
-    val sortedList = sorter.sort(List(createItem(List(1, 1, 2), 10), createItem(List(1, 1, 0), 100), createItem(List(3, 2, 1), 10)))
+    val sorter = new CapacityDimensionWeightedSorter
+    val partialSorter = sorter.sort(Weight(List(10, 5, 2)), _ : List[ContentsItem])
+    val sortedList = partialSorter(List(createItem(List(1, 1, 2), 10), createItem(List(1, 1, 0), 100), createItem(List(3, 2, 1), 10)))
     sortedList should equal (List(createItem(List(1, 1, 0), 100), createItem(List(3, 2, 1), 10), createItem(List(1, 1, 2), 10)))
   }
 }
