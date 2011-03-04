@@ -4,4 +4,4 @@ then
 	echo "Usage: $0 <json file>"
 	exit 2
 fi
-curl -d@$1 http://localhost:8080/
+time curl -d@$1 http://localhost:8080/
