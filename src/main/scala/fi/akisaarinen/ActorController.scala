@@ -14,7 +14,24 @@ import collection.immutable.List
 
 import fi.akisaarinen.Nyyttimap._
 
-trait Algorithm
+trait Algorithm {
+  def pack(items: List[ContentsItem], capacity: Weight, resultsProcessor: Actor)
+
+  def iterateUntilFull(capacity: Weight, knapsack: List[ContentsItem], remainingList: List[ContentsItem]): List[ContentsItem] = {
+    remainingList match {
+      case Nil => knapsack
+      case nextItem :: remainingItems => {
+        val knapsackPlusNew = nextItem :: knapsack
+        val totalWeight = knapsackPlusNew.map(_.contentsWeight).foldLeft(Weight(List(0,0,0)))(_.plus(_))
+        if (capacity.fits(totalWeight)) {
+          iterateUntilFull(capacity, knapsackPlusNew, remainingItems)
+        } else {
+          knapsack
+        }
+      }
+    }
+  }
+}
 
 class ActorController {
   def filterFittingItems(items: List[ContentsItem], capacity: Weight) : Option[List[ContentsItem]] = {
