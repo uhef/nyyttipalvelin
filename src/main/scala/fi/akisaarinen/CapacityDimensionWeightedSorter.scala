@@ -3,8 +3,8 @@ package fi.akisaarinen
 import scala.actors.Actor
 
 class CapacityDimensionWeightedSorter extends Algorithm {
-  def pack(items: List[ContentsItem], capacity: Weight, resultsProcessor: Actor) = {
-    resultsProcessor ! sort(capacity, items)
+  def internalPack(items: List[ContentsItem], capacity: Weight) = {
+    sort(capacity, items)
   }
 
   private def calculateDenominator(weightFactorPairs: List[(Int, Double)]) : Double = {

@@ -15,7 +15,12 @@ import collection.immutable.List
 import fi.akisaarinen.Nyyttimap._
 
 trait Algorithm {
-  def pack(items: List[ContentsItem], capacity: Weight, resultsProcessor: Actor)
+  def internalPack(items: List[ContentsItem], capacity: Weight): List[ContentsItem]
+
+  def pack(items: List[ContentsItem], capacity: Weight, resultsProcessor: Actor) = {
+    val resultWithPossiblyTooMuch = internalPack(items, capacity)
+    resultsProcessor ! iterateUntilFull(capacity, Nil, resultWithPossiblyTooMuch)
+  }
 
   def iterateUntilFull(capacity: Weight, knapsack: List[ContentsItem], remainingList: List[ContentsItem]): List[ContentsItem] = {
     remainingList match {
