@@ -1,6 +1,6 @@
 package fi.akisaarinen
 
-class WeightSumSorter {
+class WeightSumSorter extends Algorithm {
   private def importance(x: ContentsItem) = x.value / (x.weight.sum)
 
   def sort(input : List[ContentsItem]) : List[ContentsItem] = {

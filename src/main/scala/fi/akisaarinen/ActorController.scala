@@ -14,6 +14,7 @@ import collection.immutable.List
 
 import fi.akisaarinen.Nyyttimap._
 
+trait Algorithm
 
 class ActorController {
   def filterFittingItems(items: List[ContentsItem], capacity: Weight) : Option[List[ContentsItem]] = {
@@ -29,7 +30,7 @@ class ActorController {
     val itemAverageWeightSorter = new ItemAverageWeightsSorter
     val partialWeightSort = itemAverageWeightSorter.sort(capacity, _ : List[ContentsItem])
     val partialCapacitySort = capacitySorter.sort(capacity, _ : List[ContentsItem])
-    val algorithms: List[Algorithm] = List(weightSorter.sort, partialCapacitySort, partialWeightSort)
+    val algorithms: List[SortAlgorithm] = List(weightSorter.sort, partialCapacitySort, partialWeightSort)
     val resultsFromAlgorithms: ResultsOfAlgorithms = Nyyttimap.runAlgorithms(items, algorithms, capacity, timeout)
 
     ValueUtils.bestList(resultsFromAlgorithms)

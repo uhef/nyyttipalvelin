@@ -5,12 +5,12 @@ import scala.actors.TIMEOUT
 import scala.actors.Actor._
 import Nyyttimap._
 
-class NyyttiActor(controller: Actor, algorithm: Algorithm, input: List[ContentsItem], capacity: Weight) extends Actor {
+class NyyttiActor(controller: Actor, algorithm: SortAlgorithm, input: List[ContentsItem], capacity: Weight) extends Actor {
   def act() {
     exec(controller, algorithm, input, capacity)
   }
 
-  def exec(replyTo: Actor, algorithm: Algorithm, input: List[ContentsItem], capacity: Weight) = {
+  def exec(replyTo: Actor, algorithm: SortAlgorithm, input: List[ContentsItem], capacity: Weight) = {
     println("Hallo welt from Die Aktor!")
     val fullSortedResultList: List[ContentsItem] = algorithm(input)
     val resultsToFillKnapsack = iterateUntilFull(capacity, Nil, fullSortedResultList)
@@ -44,14 +44,14 @@ class TimeoutActor(controller: Actor, timeOut: Long) extends Actor {
 }
 
 object Nyyttimap {
-  type Algorithm = List[ContentsItem] => List[ContentsItem]
+  type SortAlgorithm = List[ContentsItem] => List[ContentsItem]
   type ResultsOfAlgorithms = List[List[ContentsItem]]
 
   val safetyMarginMillis = 3000;
 
   def max(x: Long, y: Long) = if(x >= y) x else y
 
-  def runAlgorithms(input: List[ContentsItem], algorithms: List[Algorithm], capacity: Weight, timeOut: Long): ResultsOfAlgorithms = {
+  def runAlgorithms(input: List[ContentsItem], algorithms: List[SortAlgorithm], capacity: Weight, timeOut: Long): ResultsOfAlgorithms = {
     new TimeoutActor(self, max(0, timeOut - safetyMarginMillis)).start
     algorithms.map(a => new NyyttiActor(self, a, input, capacity).start)
 

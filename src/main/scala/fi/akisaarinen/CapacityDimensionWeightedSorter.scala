@@ -1,6 +1,6 @@
 package fi.akisaarinen
 
-class CapacityDimensionWeightedSorter {
+class CapacityDimensionWeightedSorter extends Algorithm {
   private def calculateDenominator(weightFactorPairs: List[(Int, Double)]) : Double = {
     weightFactorPairs.map((t) => { int2double(t._1) * t._2 }).sum
   }
