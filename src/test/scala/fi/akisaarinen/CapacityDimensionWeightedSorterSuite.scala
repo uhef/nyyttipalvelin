@@ -3,14 +3,6 @@ package fi.akisaarinen
 import org.scalatest.FunSuite
 import org.scalatest.matchers.ShouldMatchers
 
-/**
- * Created by IntelliJ IDEA.
- * User: tuomjarv
- * Date: 3/4/11
- * Time: 8:55 AM
- * To change this template use File | Settings | File Templates.
- */
-
 class CapacityDimensionWeightedSorterSuite extends FunSuite with ShouldMatchers {
   private def createItem(weight: List[Int], v: Int) : ContentsItem = {
     new ContentsItem("foo", weight, v)
