@@ -41,6 +41,9 @@ object Nyyttimap {
     def receiveNext(currentBest: List[ContentsItem]): ResultsOfAlgorithms = {
       receive {
         case newResult: List[ContentsItem] => {
+          if (Environment.debug) {
+            println("Actor(" + this + ") returning: " + ValueUtils.calculateListValue(newResult))
+          }
           if(ValueUtils.calculateListValue(newResult) >= ValueUtils.calculateListValue(currentBest)) receiveNext(newResult)
             else receiveNext(currentBest)
         }
