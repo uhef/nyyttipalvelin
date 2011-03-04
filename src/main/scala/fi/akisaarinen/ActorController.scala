@@ -25,7 +25,7 @@ class ActorController {
 
   def sortToOptimizedOrder(items: List[ContentsItem]) : List[ContentsItem] = {
     val algorithms: List[(List[ContentsItem]) => List[ContentsItem]] = List(sortToOptimizedOrderImpl)
-    val resultsFromAlgorithms: List[List[ContentsItem]] = nyyttimap.runAlgorithms(items, algorithms)
+    val resultsFromAlgorithms: List[List[ContentsItem]] = Nyyttimap.runAlgorithms(items, algorithms)
     resultsFromAlgorithms(0)
   }
 

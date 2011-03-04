@@ -1,11 +1,9 @@
 package fi.akisaarinen
 
-class NyyttiActors
-
 import scala.actors.Actor
 import scala.actors.Actor._
 
-object nyyttimap {
+object Nyyttimap {
   def runAlgorithms(input: List[ContentsItem], algorithms: List[List[ContentsItem] => List[ContentsItem]]): List[List[ContentsItem]] = {
     val s = self
     val actors = algorithms.map(a => actor { exec(s, a, input)})
