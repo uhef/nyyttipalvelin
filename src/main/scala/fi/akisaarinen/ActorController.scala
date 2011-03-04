@@ -23,8 +23,9 @@ class ActorController {
   private def average(x: ContentsItem) = x.value / (x.weight.sum)
 
   def chooseItemsToKnapsack(items: List[ContentsItem], capacity: Weight): List[ContentsItem] = {
+    val weightSorter = new WeightSumSorter
     val capacitySorter = new CapacityDimensionWeightedSorter(capacity)
-    val algorithms: List[(List[ContentsItem]) => List[ContentsItem]] = List(sortToOptimizedOrderImpl, capacitySorter.sort)
+    val algorithms: List[(List[ContentsItem]) => List[ContentsItem]] = List(weightSorter.sort, capacitySorter.sort)
     val resultsFromAlgorithms: List[List[ContentsItem]] = Nyyttimap.runAlgorithms(items, algorithms, capacity)
     ValueUtils.bestList(resultsFromAlgorithms)
   }
