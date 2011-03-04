@@ -26,8 +26,9 @@ class ActorControllerSuite extends FunSuite with ShouldMatchers {
   }
 
   test("ActorController should order by value / average weight") {
-    val result = controller.sortToOptimizedOrder(List(ContentsItem("foo", List(5, 10, 15), 50), ContentsItem("foo", List(2, 4, 6), 40), ContentsItem("foo", List(1, 4, 6), 574)))
-    result should equal (List( ContentsItem("foo", List(1, 4, 6), 574), ContentsItem("foo", List(2, 4, 6), 40), ContentsItem("foo", List(5, 10, 15), 50)))
+    val result = controller.sortToOptimizedOrder(List(ContentsItem("foo", List(5, 10, 15), 50), ContentsItem("foo",
+      List(2, 4, 6), 40), ContentsItem("foo", List(1, 4, 6), 574)), Weight(List(10000)))
+    result should equal (List( ContentsItem("foo", List(1, 4, 6), 574), ContentsItem("foo", List(2, 4, 6), 40), ContentsItem("foo", List(5, 10, 15), 50)).reverse)
   }
 
 }

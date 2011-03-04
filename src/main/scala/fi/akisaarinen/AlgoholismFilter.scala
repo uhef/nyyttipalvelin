@@ -77,28 +77,13 @@ class AlgoholismFilter extends ScalatraFilter {
     val filtered = controller.filterFittingItems(req.contents, req.capacityAsWeight)
     filtered match {
       case Some(l) => {
-        val results = iterateUntilFull(req.capacityAsWeight, Nil, controller.sortToOptimizedOrder(l))
+        val results = controller.sortToOptimizedOrder(l, req.capacityAsWeight)
         if (debug) {
           println("Total value: " + results.map(_.value).foldLeft(0)(_ + _))
         }
         results.map(_.id)
       }
       case None => List()
-    }
-  }
-
-  def iterateUntilFull(capacity: Weight, knapsack: List[ContentsItem], remainingList: List[ContentsItem]): List[ContentsItem] = {
-    remainingList match {
-      case Nil => knapsack
-      case nextItem :: remainingItems => {
-        val knapsackPlusNew = nextItem :: knapsack
-        val totalWeight = knapsackPlusNew.map(_.contentsWeight).foldLeft(Weight(List(0,0,0)))(_.plus(_))
-        if (capacity.fits(totalWeight)) {
-          iterateUntilFull(capacity, knapsackPlusNew, remainingItems)
-        } else {
-          knapsack
-        }
-      }
     }
   }
 }

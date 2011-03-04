@@ -4,9 +4,9 @@ import scala.actors.Actor
 import scala.actors.Actor._
 
 object Nyyttimap {
-  def runAlgorithms(input: List[ContentsItem], algorithms: List[List[ContentsItem] => List[ContentsItem]]): List[List[ContentsItem]] = {
+  def runAlgorithms(input: List[ContentsItem], algorithms: List[List[ContentsItem] => List[ContentsItem]], capacity: Weight): List[List[ContentsItem]] = {
     val s = self
-    val actors = algorithms.map(a => actor { exec(s, a, input)})
+    val actors = algorithms.map(a => actor { exec(s, a, input, capacity)})
     gather(actors, Nil)
   }
 
@@ -19,8 +19,25 @@ object Nyyttimap {
       case Nil => accumulatedResults
     }
 
-  private def exec(replyTo: Actor, algorithm: List[ContentsItem] => List[ContentsItem], input: List[ContentsItem]) = {
+  private def exec(replyTo: Actor, algorithm: List[ContentsItem] => List[ContentsItem], input: List[ContentsItem], capacity: Weight) = {
     println("Hallo welt from Die Aktor!")
-    replyTo ! algorithm(input)
+    val fullSortedResultList: List[ContentsItem] = algorithm(input)
+    val resultsToFillKnapsack = iterateUntilFull(capacity, Nil, fullSortedResultList)
+    replyTo ! resultsToFillKnapsack
+  }
+
+  def iterateUntilFull(capacity: Weight, knapsack: List[ContentsItem], remainingList: List[ContentsItem]): List[ContentsItem] = {
+    remainingList match {
+      case Nil => knapsack
+      case nextItem :: remainingItems => {
+        val knapsackPlusNew = nextItem :: knapsack
+        val totalWeight = knapsackPlusNew.map(_.contentsWeight).foldLeft(Weight(List(0,0,0)))(_.plus(_))
+        if (capacity.fits(totalWeight)) {
+          iterateUntilFull(capacity, knapsackPlusNew, remainingItems)
+        } else {
+          knapsack
+        }
+      }
+    }
   }
 }
