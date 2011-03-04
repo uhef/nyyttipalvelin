@@ -4,13 +4,17 @@ import scala.actors.Actor
 import scala.actors.Actor._
 
 object Nyyttimap {
-  def runAlgorithms(input: List[ContentsItem], algorithms: List[List[ContentsItem] => List[ContentsItem]], capacity: Weight): List[List[ContentsItem]] = {
+
+  type Algorithm = List[ContentsItem] => List[ContentsItem]
+  type AlgorithmResults = List[List[ContentsItem]]
+
+  def runAlgorithms(input: List[ContentsItem], algorithms: List[Algorithm], capacity: Weight): AlgorithmResults = {
     val s = self
     val actors = algorithms.map(a => actor { exec(s, a, input, capacity)})
     gather(actors, Nil)
   }
 
-  private def gather(actors: List[Actor], accumulatedResults: List[List[ContentsItem]]): List[List[ContentsItem]] =
+  private def gather(actors: List[Actor], accumulatedResults: AlgorithmResults): AlgorithmResults =
     actors match {
       case a :: as =>
         receive {
@@ -19,7 +23,7 @@ object Nyyttimap {
       case Nil => accumulatedResults
     }
 
-  private def exec(replyTo: Actor, algorithm: List[ContentsItem] => List[ContentsItem], input: List[ContentsItem], capacity: Weight) = {
+  private def exec(replyTo: Actor, algorithm: Algorithm, input: List[ContentsItem], capacity: Weight) = {
     println("Hallo welt from Die Aktor!")
     val fullSortedResultList: List[ContentsItem] = algorithm(input)
     val resultsToFillKnapsack = iterateUntilFull(capacity, Nil, fullSortedResultList)
