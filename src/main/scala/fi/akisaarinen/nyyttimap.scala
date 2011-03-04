@@ -5,32 +5,15 @@ import scala.actors.TIMEOUT
 import scala.actors.Actor._
 import Nyyttimap._
 
-class NyyttiActor(controller: Actor, algorithm: SortAlgorithm, input: List[ContentsItem], capacity: Weight) extends Actor {
+class NyyttiActor(controller: Actor, algorithm: Algorithm, input: List[ContentsItem], capacity: Weight) extends Actor {
   def act() {
     exec(controller, algorithm, input, capacity)
   }
 
-  def exec(replyTo: Actor, algorithm: SortAlgorithm, input: List[ContentsItem], capacity: Weight) = {
+  def exec(replyTo: Actor, algorithm: Algorithm, input: List[ContentsItem], capacity: Weight) = {
     println("Hallo welt from Die Aktor!")
-    val fullSortedResultList: List[ContentsItem] = algorithm(input)
-    val resultsToFillKnapsack = iterateUntilFull(capacity, Nil, fullSortedResultList)
-    replyTo ! resultsToFillKnapsack
+    algorithm.pack(input, capacity, replyTo)
   }
-
-  def iterateUntilFull(capacity: Weight, knapsack: List[ContentsItem], remainingList: List[ContentsItem]): List[ContentsItem] = {
-    remainingList match {
-      case Nil => knapsack
-      case nextItem :: remainingItems => {
-        val knapsackPlusNew = nextItem :: knapsack
-        val totalWeight = knapsackPlusNew.map(_.contentsWeight).foldLeft(Weight(List(0,0,0)))(_.plus(_))
-        if (capacity.fits(totalWeight)) {
-          iterateUntilFull(capacity, knapsackPlusNew, remainingItems)
-        } else {
-          knapsack
-        }
-      }
-    }
-  }  
 }
 
 case class Timeout()
@@ -51,7 +34,7 @@ object Nyyttimap {
 
   def max(x: Long, y: Long) = if(x >= y) x else y
 
-  def runAlgorithms(input: List[ContentsItem], algorithms: List[SortAlgorithm], capacity: Weight, timeOut: Long): ResultsOfAlgorithms = {
+  def runAlgorithms(input: List[ContentsItem], algorithms: List[Algorithm], capacity: Weight, timeOut: Long): ResultsOfAlgorithms = {
     new TimeoutActor(self, max(0, timeOut - safetyMarginMillis)).start
     algorithms.map(a => new NyyttiActor(self, a, input, capacity).start)
 
