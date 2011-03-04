@@ -16,8 +16,10 @@ class BruteForceFillerAlgorithm {
 
   def sortToScarcestDimension(scarce : Scarcest, knapsack : List[ContentsItem]) = {
     scarce match {
-      case First => println( "first"  )
-      case _ => println ("lol")
+      case First => { knapsack.sortWith((x, y) => { x.value / x.weight(0) < y.value / y.weight(0) }) }
+      case Second => { knapsack.sortWith((x, y) => { x.value / x.weight(1) < y.value / y.weight(1) }) }
+      case Third => { knapsack.sortWith((x, y) => { x.value / x.weight(2) < y.value / y.weight(2) }) }
+      case _ => println ("won't optimize")
     }
   }
 

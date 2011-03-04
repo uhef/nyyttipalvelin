@@ -11,11 +11,6 @@ class BruteForceFillerAlgorithmSuite extends FunSuite with ShouldMatchers {
 
   test("BruteForceFiller should return knapsack if it cannot pimp it") {
     val result = controller.tryToOptimizeKnapsack(List(createItem(List(1,2,3), 3)), List(createItem(List(2,3,4), 5)), Weight(List(2,3,4)))
-
-
-    // val result = controller.filterFittingItems(List(ContentsItem("foo", List(1, 1, 1), 100)), Weight(List(5, 5, 5)))
-    // result.size should equal (1)
-    // result should equal (Some(List(ContentsItem("foo", List(1, 1, 1), 100))))
   }
 
   test("BruteForce filler should find the scarcest dimension") {
@@ -33,7 +28,11 @@ class BruteForceFillerAlgorithmSuite extends FunSuite with ShouldMatchers {
   }
 
    test("BruteForce filler should order based on the scarcest dimension") {
-     val result = controller.sortToScarcestDimension(First, List(createItem(List(1,2,3), 3), createItem(List(2,3,4), 5)))
-     val result2 = controller.sortToScarcestDimension(Second, List(createItem(List(1,2,3), 3), createItem(List(2,3,4), 5)))
+     val result = controller.sortToScarcestDimension(First,List(createItem(List(2,3,4), 3), createItem(List(3,2,3), 1)))
+     result should equal (List(createItem(List(3,2,3), 1), createItem(List(2,3,4), 3)))
+     val result2 = controller.sortToScarcestDimension(Second, List(createItem(List(2,5,4), 5), createItem(List(1,4,3), 3)))
+     result2 should equal (List(createItem(List(1,4,3), 3), createItem(List(2,5,4), 5)))
+     val result3 = controller.sortToScarcestDimension(Third, List(createItem(List(1,4,3), 3), createItem(List(2,3,8), 5)))
+     result3 should equal (List(createItem(List(2,3,8), 5), createItem(List(1,4,3), 3)))
    }
 }
