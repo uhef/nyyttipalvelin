@@ -1,5 +1,7 @@
 package fi.akisaarinen
 
+import scala.actors.Actor
+
 sealed abstract class Scarcest {
   def getIndex : Int
 }
@@ -14,9 +16,19 @@ case object Third extends Scarcest {
   val getIndex = 2
 }
 
-class BruteForceFillerAlgorithm {
+class BruteForceFillerAlgorithm extends Algorithm {
 
-  def optimizeKnapsack(knapsack : List[ContentsItem], leftovers : List[ContentsItem], capacity : Weight) : List[ContentsItem] = {
+  def internalPack(items: List[ContentsItem], capacity: Weight) = {
+    items
+  }
+
+  def pack(items: List[ContentsItem], capacity: Weight, resultsProcessor: Actor) = {
+    val sorter = new CapacityDimensionWeightedSorter
+    val initialKnapsack = sorter.internalPack(items, capacity)
+    optimizeKnapsack(initialKnapsack, items.filter(x => !initialKnapsack.contains(x)), capacity, resultsProcessor)
+  }
+
+  def optimizeKnapsack(knapsack : List[ContentsItem], leftovers : List[ContentsItem], capacity : Weight, resultsProcessor: Actor) : List[ContentsItem] = {
     val scarcestDimension = calculateDimensionWhichIsScarcest(knapsack, capacity)
     val sortedKnapsack = sortToScarcestDimension(scarcestDimension, knapsack)
     val sortedLeftovers =  sortToScarcestDimension(scarcestDimension, leftovers).reverse
@@ -26,7 +38,8 @@ class BruteForceFillerAlgorithm {
       // value has to be increased
       if (ValueUtils.calculateListValue(splittedKnapsack._1) < sortedLeftovers.head.value) {
         val newKnapsack = splittedKnapsack._2 :+ sortedLeftovers.head
-        optimizeKnapsack(newKnapsack, sortedLeftovers.tail ::: splittedKnapsack._1, capacity)
+        resultsProcessor ! ResultMessage(name, newKnapsack)
+        optimizeKnapsack(newKnapsack, sortedLeftovers.tail ::: splittedKnapsack._1, capacity, resultsProcessor)
       }
     }
 

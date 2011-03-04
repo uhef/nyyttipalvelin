@@ -49,7 +49,8 @@ class ActorController {
     val weightSorter = new WeightSumSorter
     val capacitySorter = new CapacityDimensionWeightedSorter
     val itemAverageWeightSorter = new ItemAverageWeightsSorter
-    val algorithms: List[Algorithm] = List(weightSorter, capacitySorter, itemAverageWeightSorter)
+    val brute = new BruteForceFillerAlgorithm
+    val algorithms: List[Algorithm] = List(weightSorter, capacitySorter, itemAverageWeightSorter, brute)
     val resultsFromAlgorithms: ResultsOfAlgorithms = Nyyttimap.runAlgorithms(items, algorithms, capacity, timeout)
 
     ValueUtils.bestList(resultsFromAlgorithms)
