@@ -7,21 +7,18 @@ import Nyyttimap._
 
 class NyyttiActor(controller: Actor, algorithm: Algorithm, input: List[ContentsItem], capacity: Weight) extends Actor {
   def act() {
-    exec(controller, algorithm, input, capacity)
-  }
-
-  def exec(replyTo: Actor, algorithm: Algorithm, input: List[ContentsItem], capacity: Weight) = {
     println("Hallo welt from Die Aktor!")
-    algorithm.pack(input, capacity, replyTo)
+    algorithm.pack(input, capacity, controller)
   }
 }
 
-case class Timeout()
+case class TimeoutMessage()
+case class ResultMessage(name: String, payload: List[ContentsItem])
 
 class TimeoutActor(controller: Actor, timeOut: Long) extends Actor {
   def act() {
     receiveWithin(timeOut) {
-      case TIMEOUT => println("Send shutdown!"); controller ! Timeout
+      case TIMEOUT => println("Send shutdown!"); controller ! TimeoutMessage
     }
   }
 }
@@ -38,18 +35,18 @@ object Nyyttimap {
     new TimeoutActor(self, max(0, timeOut - safetyMarginMillis)).start
     algorithms.map(a => new NyyttiActor(self, a, input, capacity).start)
 
-    def receiveNext(currentBest: List[ContentsItem]): ResultsOfAlgorithms = {
+    def receiveNext(currentBest: ResultMessage): ResultsOfAlgorithms = {
       receive {
-        case newResult: List[ContentsItem] => {
+        case newResult: ResultMessage => {
           if (Environment.debug) {
-            println("Actor(" + this + ") returning: " + ValueUtils.calculateListValue(newResult))
+            println("Actor(" + newResult.name + ") returning: " + ValueUtils.calculateListValue(newResult.payload))
           }
-          if(ValueUtils.calculateListValue(newResult) >= ValueUtils.calculateListValue(currentBest)) receiveNext(newResult)
+          if(ValueUtils.calculateListValue(newResult.payload) >= ValueUtils.calculateListValue(currentBest.payload)) receiveNext(newResult)
             else receiveNext(currentBest)
         }
-        case Timeout => List(currentBest)
+        case TimeoutMessage => List(currentBest.payload)
       }
     }
-    receiveNext(List[ContentsItem]())
+    receiveNext(ResultMessage("empty", List[ContentsItem]()))
   }
 }

@@ -15,6 +15,8 @@ import collection.immutable.List
 import fi.akisaarinen.Nyyttimap._
 
 trait Algorithm {
+  def name = getClass.getSimpleName
+  
   def internalPack(items: List[ContentsItem], capacity: Weight): List[ContentsItem]
 
   def pack(items: List[ContentsItem], capacity: Weight, resultsProcessor: Actor)

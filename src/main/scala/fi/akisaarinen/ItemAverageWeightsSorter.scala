@@ -9,7 +9,7 @@ class ItemAverageWeightsSorter extends Algorithm {
 
   def pack(items: List[ContentsItem], capacity: Weight, resultsProcessor: Actor) = {
     val resultWithPossiblyTooMuch = internalPack(items, capacity)
-    resultsProcessor ! iterateUntilFull(capacity, Nil, resultWithPossiblyTooMuch)
+    resultsProcessor ! ResultMessage(name, iterateUntilFull(capacity, Nil, resultWithPossiblyTooMuch))
   }
 
   def sort(capacity: Weight, input: List[ContentsItem]): List[ContentsItem] = {

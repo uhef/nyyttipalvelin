@@ -9,7 +9,7 @@ class WeightSumSorter extends Algorithm {
 
   def pack(items: List[ContentsItem], capacity: Weight, resultsProcessor: Actor) = {
     val resultWithPossiblyTooMuch = internalPack(items, capacity)
-    resultsProcessor ! iterateUntilFull(capacity, Nil, resultWithPossiblyTooMuch)
+    resultsProcessor ! ResultMessage(name, iterateUntilFull(capacity, Nil, resultWithPossiblyTooMuch))
   }
 
   private def importance(x: ContentsItem) = x.value / (x.weight.sum)
