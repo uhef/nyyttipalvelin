@@ -1,6 +1,7 @@
 package fi.akisaarinen
 
 import scala.actors.Actor
+import scala.actors.TIMEOUT
 import scala.actors.Actor._
 import Nyyttimap._
 
@@ -33,22 +34,32 @@ class NyyttiActor(controller: Actor, algorithm: Algorithm, input: List[ContentsI
 }
 
 object Nyyttimap {
-
   type Algorithm = List[ContentsItem] => List[ContentsItem]
   type ResultsOfAlgorithms = List[List[ContentsItem]]
 
-  def runAlgorithms(input: List[ContentsItem], algorithms: List[Algorithm], capacity: Weight): ResultsOfAlgorithms = {
+  val safetyMarginMillis = 3000;
+
+  def runAlgorithms(input: List[ContentsItem], algorithms: List[Algorithm], capacity: Weight, timeOut: Long): ResultsOfAlgorithms = {
+    val startTime = System.currentTimeMillis
     val s = self
     val actors = algorithms.map(a => new NyyttiActor(s, a, input, capacity).start)
-    gather(actors, Nil)
+    gather(actors, Nil, startTime, timeOut)
   }
 
-  private def gather(actors: List[Actor], accumulatedResults: ResultsOfAlgorithms): ResultsOfAlgorithms =
+  private def gather(actors: List[Actor], accumulatedResults: ResultsOfAlgorithms, startTime: Long, timeOut: Long): ResultsOfAlgorithms =
     actors match {
-      case a :: as =>
-        receive {
-          case ret: List[ContentsItem] => gather(as, ret :: accumulatedResults)
+      case a :: as => {
+        val elapsedMillis = System.currentTimeMillis - startTime
+        val remainingMillis = timeOut - safetyMarginMillis - elapsedMillis
+        //println("Remaining: " + remainingMillis)
+        if (remainingMillis < safetyMarginMillis) {
+          return accumulatedResults
         }
+        receiveWithin(remainingMillis) {
+          case ret: List[ContentsItem] => gather(as, ret :: accumulatedResults, startTime, timeOut)
+          case timeout: AnyRef => println(timeout); accumulatedResults
+        }
+      }
       case Nil => accumulatedResults
     }
 }

@@ -23,12 +23,12 @@ class ActorController {
     }
   }
 
-  def chooseItemsToKnapsack(items: List[ContentsItem], capacity: Weight): List[ContentsItem] = {
+  def chooseItemsToKnapsack(items: List[ContentsItem], capacity: Weight, timeout: Long): List[ContentsItem] = {
     val weightSorter = new WeightSumSorter
     val capacitySorter = new CapacityDimensionWeightedSorter
     val partialCapacitySort = capacitySorter.sort(capacity, _ : List[ContentsItem])
     val algorithms: List[Algorithm] = List(weightSorter.sort, partialCapacitySort)
-    val resultsFromAlgorithms: ResultsOfAlgorithms = Nyyttimap.runAlgorithms(items, algorithms, capacity)
+    val resultsFromAlgorithms: ResultsOfAlgorithms = Nyyttimap.runAlgorithms(items, algorithms, capacity, timeout)
 
     ValueUtils.bestList(resultsFromAlgorithms)
   }

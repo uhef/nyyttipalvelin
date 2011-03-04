@@ -81,7 +81,7 @@ class AlgoholismFilter extends ScalatraFilter {
     val filtered = controller.filterFittingItems(req.contents, req.capacityAsWeight)
     filtered match {
       case Some(l) => {
-        val results = controller.chooseItemsToKnapsack(l, req.capacityAsWeight)
+        val results = controller.chooseItemsToKnapsack(l, req.capacityAsWeight, req.timeout)
         if (debug) {
           println("Total value: " + results.map(_.value).foldLeft(0)(_ + _))
         }
