@@ -88,7 +88,9 @@ class AlgoholismFilter extends ScalatraFilter {
   }
 }
 
-case class Weight(dimensions: List[Int]) {
+case class Weight(d: List[Int]) {
+  val dimensions = d
+
   def fits(other: Weight): Boolean = dimensions.zip(other.dimensions).filter( x => { (x._1 < x._2) } ).isEmpty
 
   def plus(other: Weight): Weight = Weight(dimensions.zip(other.dimensions).map(x => x._1 + x._2))
