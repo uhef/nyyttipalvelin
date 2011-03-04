@@ -14,10 +14,9 @@ import collection.immutable.List
 
 class ActorController {
   def filterFittingItems(items: List[ContentsItem], capacity: Weight) : Option[List[ContentsItem]] = {
-    val filtered = items.filter(x => { capacity.fits(x.contentsWeight) } )
-    filtered match {
+    items.filter(x => { capacity.fits(x.contentsWeight) }) match {
       case List() => None
-      case _ => Option(filtered)
+      case results => Option(results)
     }
   }
 
@@ -26,7 +25,7 @@ class ActorController {
   def sortToOptimizedOrder(items: List[ContentsItem], capacity: Weight): List[ContentsItem] = {
     val algorithms: List[(List[ContentsItem]) => List[ContentsItem]] = List(sortToOptimizedOrderImpl)
     val resultsFromAlgorithms: List[List[ContentsItem]] = Nyyttimap.runAlgorithms(items, algorithms, capacity)
-    resultsFromAlgorithms(0)
+    resultsFromAlgorithms.head
   }
 
   private def sortToOptimizedOrderImpl(items: List[ContentsItem]) : List[ContentsItem] = {
