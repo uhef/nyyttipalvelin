@@ -35,11 +35,11 @@ class ActorController {
 
 
 object ValueUtils {
-
   def calculateListValue(items: List[ContentsItem]) = items.map(_.value).foldLeft(0)(_ + _)
 
-  def bestList(lists: List[List[ContentsItem]]) =
-    lists.zip(lists.map(calculateListValue(_))).sortWith( (x,y) => x._2 > y._2 ).head._1
+  def maxList(a: (List[ContentsItem], Int), b: (List[ContentsItem], Int)) = if(calculateListValue(a._1) >= calculateListValue(b._1)) a else b
+
+  def bestList(lists: List[List[ContentsItem]]) = lists.zip(lists.map(calculateListValue(_))).reduceRight(maxList(_,_))._1
 }
 
 
