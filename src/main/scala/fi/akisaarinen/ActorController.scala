@@ -69,6 +69,11 @@ object ValueUtils {
   }
 }
 
+object WeightUtils {
+  def totalWeight(items: List[ContentsItem]) = {
+    items.map( x => { x.weight } ).foldLeft(List(0, 0, 0))( (x, y) => { x.zip(y).map( t => { t._1 + t._2 } ) } )
+  }
+}
 
 
 
