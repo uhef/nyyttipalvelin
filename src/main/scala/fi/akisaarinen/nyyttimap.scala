@@ -2,28 +2,14 @@ package fi.akisaarinen
 
 import scala.actors.Actor
 import scala.actors.Actor._
+import Nyyttimap._
 
-object Nyyttimap {
-
-  type Algorithm = List[ContentsItem] => List[ContentsItem]
-  type ResultsOfAlgorithms = List[List[ContentsItem]]
-
-  def runAlgorithms(input: List[ContentsItem], algorithms: List[Algorithm], capacity: Weight): ResultsOfAlgorithms = {
-    val s = self
-    val actors = algorithms.map(a => actor { exec(s, a, input, capacity)})
-    gather(actors, Nil)
+class NyyttiActor(controller: Actor, algorithm: Algorithm, input: List[ContentsItem], capacity: Weight) extends Actor {
+  def act() {
+    exec(controller, algorithm, input, capacity)
   }
 
-  private def gather(actors: List[Actor], accumulatedResults: ResultsOfAlgorithms): ResultsOfAlgorithms =
-    actors match {
-      case a :: as =>
-        receive {
-          case ret: List[ContentsItem] => gather(as, ret :: accumulatedResults)
-        }
-      case Nil => accumulatedResults
-    }
-
-  private def exec(replyTo: Actor, algorithm: Algorithm, input: List[ContentsItem], capacity: Weight) = {
+  def exec(replyTo: Actor, algorithm: Algorithm, input: List[ContentsItem], capacity: Weight) = {
     println("Hallo welt from Die Aktor!")
     val fullSortedResultList: List[ContentsItem] = algorithm(input)
     val resultsToFillKnapsack = iterateUntilFull(capacity, Nil, fullSortedResultList)
@@ -43,5 +29,26 @@ object Nyyttimap {
         }
       }
     }
+  }  
+}
+
+object Nyyttimap {
+
+  type Algorithm = List[ContentsItem] => List[ContentsItem]
+  type ResultsOfAlgorithms = List[List[ContentsItem]]
+
+  def runAlgorithms(input: List[ContentsItem], algorithms: List[Algorithm], capacity: Weight): ResultsOfAlgorithms = {
+    val s = self
+    val actors = algorithms.map(a => new NyyttiActor(s, a, input, capacity).start)
+    gather(actors, Nil)
   }
+
+  private def gather(actors: List[Actor], accumulatedResults: ResultsOfAlgorithms): ResultsOfAlgorithms =
+    actors match {
+      case a :: as =>
+        receive {
+          case ret: List[ContentsItem] => gather(as, ret :: accumulatedResults)
+        }
+      case Nil => accumulatedResults
+    }
 }
