@@ -41,7 +41,10 @@ object ValueUtils {
 
   def maxList(a: (List[ContentsItem], Int), b: (List[ContentsItem], Int)) = if(calculateListValue(a._1) >= calculateListValue(b._1)) a else b
 
-  def bestList(lists: ResultsOfAlgorithms) = lists.zip(lists.map(calculateListValue(_))).reduceRight(maxList(_,_))._1
+  def bestList(lists: ResultsOfAlgorithms) = lists.zip(lists.map(calculateListValue(_))) match {
+    case items: List[(List[ContentsItem], Int)] if items != Nil => items.reduceRight(maxList(_,_))._1
+    case _ => Nil
+  }
 }
 
 
