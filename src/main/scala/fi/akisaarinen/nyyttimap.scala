@@ -33,33 +33,37 @@ class NyyttiActor(controller: Actor, algorithm: Algorithm, input: List[ContentsI
   }  
 }
 
+case class Timeout()
+
+class TimeoutActor(controller: Actor, timeOut: Long) extends Actor {
+  def act() {
+    receiveWithin(timeOut) {
+      case TIMEOUT => println("Send shutdown!"); controller ! Timeout
+    }
+  }
+}
+
 object Nyyttimap {
   type Algorithm = List[ContentsItem] => List[ContentsItem]
   type ResultsOfAlgorithms = List[List[ContentsItem]]
 
   val safetyMarginMillis = 3000;
 
-  def runAlgorithms(input: List[ContentsItem], algorithms: List[Algorithm], capacity: Weight, timeOut: Long): ResultsOfAlgorithms = {
-    val startTime = System.currentTimeMillis
-    val s = self
-    val actors = algorithms.map(a => new NyyttiActor(s, a, input, capacity).start)
-    gather(actors, Nil, startTime, timeOut)
-  }
+  def max(x: Long, y: Long) = if(x >= y) x else y
 
-  private def gather(actors: List[Actor], accumulatedResults: ResultsOfAlgorithms, startTime: Long, timeOut: Long): ResultsOfAlgorithms =
-    actors match {
-      case a :: as => {
-        val elapsedMillis = System.currentTimeMillis - startTime
-        val remainingMillis = timeOut - safetyMarginMillis - elapsedMillis
-        //println("Remaining: " + remainingMillis)
-        if (remainingMillis < safetyMarginMillis) {
-          return accumulatedResults
+  def runAlgorithms(input: List[ContentsItem], algorithms: List[Algorithm], capacity: Weight, timeOut: Long): ResultsOfAlgorithms = {
+    new TimeoutActor(self, max(0, timeOut - safetyMarginMillis)).start
+    algorithms.map(a => new NyyttiActor(self, a, input, capacity).start)
+
+    def receiveNext(currentBest: List[ContentsItem]): ResultsOfAlgorithms = {
+      receive {
+        case newResult: List[ContentsItem] => {
+          if(ValueUtils.calculateListValue(newResult) >= ValueUtils.calculateListValue(currentBest)) receiveNext(newResult)
+            else receiveNext(currentBest)
         }
-        receiveWithin(remainingMillis) {
-          case ret: List[ContentsItem] => gather(as, ret :: accumulatedResults, startTime, timeOut)
-          case timeout: AnyRef => println(timeout); accumulatedResults
-        }
+        case Timeout => List(currentBest)
       }
-      case Nil => accumulatedResults
     }
+    receiveNext(List[ContentsItem]())
+  }
 }
