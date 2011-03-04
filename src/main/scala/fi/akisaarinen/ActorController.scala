@@ -25,16 +25,21 @@ class ActorController {
   def sortToOptimizedOrder(items: List[ContentsItem], capacity: Weight): List[ContentsItem] = {
     val algorithms: List[(List[ContentsItem]) => List[ContentsItem]] = List(sortToOptimizedOrderImpl)
     val resultsFromAlgorithms: List[List[ContentsItem]] = Nyyttimap.runAlgorithms(items, algorithms, capacity)
-    resultsFromAlgorithms.head
+    ValueUtils.bestList(resultsFromAlgorithms)
   }
 
-  private def sortToOptimizedOrderImpl(items: List[ContentsItem]) : List[ContentsItem] = {
-    items.sortWith((x, y) => { average(x) > average(y) })
-  }
+  private def sortToOptimizedOrderImpl(items: List[ContentsItem]) = items.sortWith((x, y) => { average(x) > average(y) })
+
 }
 
 
+object ValueUtils {
 
+  def calculateListValue(items: List[ContentsItem]) = items.map(_.value).foldLeft(0)(_ + _)
+
+  def bestList(lists: List[List[ContentsItem]]) =
+    lists.zip(lists.map(calculateListValue(_))).sortWith( (x,y) => x._2 > y._2 ).head._1
+}
 
 
 
