@@ -1,6 +1,11 @@
 package fi.akisaarinen
 
 class ItemAverageWeightsSorter {
+  def sort(capacity: Weight, input: List[ContentsItem]): List[ContentsItem] = {
+    val dimImp: List[Double] = calculateDimensionWeightAverages(input).zip(capacity.dimensions).map((avgWithCap) => { avgWithCap._1 / avgWithCap._2 })
+    input.sortWith((x, y) => { (x.value / calculateDenominator(x.weight.zip(dimImp))) > (y.value / calculateDenominator(y.weight.zip(dimImp))) })
+  }
+
   def calculateDimensionWeightAverages(items: List[ContentsItem]) : List[Double] = {
     items match {
       case first :: tail => {
@@ -11,5 +16,9 @@ class ItemAverageWeightsSorter {
       case Nil => Nil
       case singleItem => singleItem.head.weight.map(int2double(_))
     }
+  }
+
+  private def calculateDenominator(weightFactorPairs: List[(Int, Double)]) : Double = {
+    weightFactorPairs.map((t) => { int2double(t._1) * t._2 }).sum
   }
 }
