@@ -2,25 +2,14 @@ package fi.akisaarinen
 
 import scala.actors.Actor
 
-sealed abstract class Scarcest {
-  def getIndex : Int
-}
-
-case object First extends Scarcest {
-  val getIndex = 0
-}
-case object Second extends Scarcest {
-  val getIndex = 1
-}
-case object Third extends Scarcest {
-  val getIndex = 2
-}
+sealed abstract class Scarcest { def getIndex : Int }
+case object First extends Scarcest { val getIndex = 0 }
+case object Second extends Scarcest { val getIndex = 1 }
+case object Third extends Scarcest { val getIndex = 2 }
 
 class BruteForceFillerAlgorithm extends Algorithm {
 
-  def internalPack(items: List[ContentsItem], capacity: Weight) = {
-    items
-  }
+  def internalPack(items: List[ContentsItem], capacity: Weight) = items
 
   def pack(items: List[ContentsItem], capacity: Weight, resultsProcessor: Actor) = {
     val sorter = new ItemAverageWeightsSorter
@@ -84,13 +73,7 @@ class BruteForceFillerAlgorithm extends Algorithm {
     }
   }
 
-  def calculateSumOverDimension(knapsack: List[ContentsItem], i: Int): Int = {
-    knapsack.map {
-      case x => {
-        x.contentsWeight.dimensions(i)
-      }
-    }.foldLeft(0)(_ + _)
-  }
+  def calculateSumOverDimension(knapsack: List[ContentsItem], i: Int) = knapsack.map { case x => { x.contentsWeight.dimensions(i) }} .foldLeft(0)(_ + _)
 
   def getCapacityConstraint(i :Int, capacity: Weight, knapsack: scala.List[ContentsItem]): Int = {
     capacity.dimensions(i) - calculateSumOverDimension(knapsack, i)
