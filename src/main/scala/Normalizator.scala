@@ -11,6 +11,12 @@ object Normalizator {
 
     items.map( x => NormalizedContentsItem(x, calculateTotalWeight(x.weight) / maxTotalWeight, x.value / maxValue) )
   }
+
+  def createNormalizedItems(knapsack : List[ContentsItem], leftovers : List[ContentsItem]) : (List[NormalizedContentsItem], List[NormalizedContentsItem]) = {
+    val knapsackSize = knapsack.size
+    val output = createNormalizedItems(knapsack ::: leftovers)
+    output.splitAt(knapsack.size)
+  }
 }
 
 object Simplifier {

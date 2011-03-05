@@ -55,9 +55,10 @@ class ActorController {
     val weightToTabu = new TabuAlgorithm(timeout - Nyyttimap.safetyMarginMillis, (new WeightSumSorter).internalPack(_, capacity))
     val capaToTabu = new TabuAlgorithm(timeout - Nyyttimap.safetyMarginMillis, (new CapacityDimensionWeightedSorter).internalPack(_, capacity))
     val itemAvgToTabu = new TabuAlgorithm(timeout - Nyyttimap.safetyMarginMillis, (new ItemAverageWeightsSorter).internalPack(_, capacity))
+    val normalizedTabu = new TabuAlgorithm(timeout - Nyyttimap.safetyMarginMillis, (new ItemAverageWeightsSorter).internalPack(_, capacity), NormalizedModifications)
 
     val algorithms: List[Algorithm] = List(weightSorter, capacitySorter, itemAverageWeightSorter, brute,
-      weightToTabu, capaToTabu, itemAvgToTabu)
+      weightToTabu, capaToTabu, itemAvgToTabu, normalizedTabu)
 
     filterFittingItems(items, capacity) match {
       case Some(filteredItems) => {

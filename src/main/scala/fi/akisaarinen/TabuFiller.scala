@@ -8,44 +8,54 @@ sealed abstract class Move(val item: NormalizedContentsItem)
 case class MoveOn(override val item: NormalizedContentsItem) extends Move(item)
 case class MoveOff(override val item: NormalizedContentsItem) extends Move(item)
 
-trait Logic
+trait Logic {
+  def prepareItems(knapsack: List[ContentsItem], leftover: List[ContentsItem]): (List[NormalizedContentsItem], List[NormalizedContentsItem])
+  def valueModification(move: Move) : Double
+  def weightModification(move: Move, knapsack: List[ContentsItem], capacity: Weight) : Double
+}
 
 object SimpleModifications extends Logic {
   private def calculateTotalWeight(item: NormalizedContentsItem) = item.totalWeight
 
-  def valueModification(move: Move, item: ContentsItem) : Double = {
+  def valueModification(move: Move) : Double = {
     move match {
       case MoveOn(x) => x.value
       case MoveOff(x) => x.value * -1.0
     }
   }
-  def weightModification(move: Move, item: ContentsItem, knapsack: List[ContentsItem], capacity: Weight) : Double = {
+  def weightModification(move: Move, knapsack: List[ContentsItem], capacity: Weight) : Double = {
     move match {
-      case MoveOn(x) => { if (capacity.fits(Weight(WeightUtils.totalWeight(item :: knapsack)))) { 0 } else calculateTotalWeight(x) }
+      case MoveOn(x) => { if (capacity.fits(Weight(WeightUtils.totalWeight(x.item :: knapsack)))) { 0 } else calculateTotalWeight(x) }
       case MoveOff(x) => calculateTotalWeight(x) * -1.0
     }
+  }
+  override def prepareItems(knapsack: List[ContentsItem], leftover: List[ContentsItem]) = {
+    Simplifier.createSimplifiedItems(knapsack, leftover)
   }
 }
 
 object NormalizedModifications extends Logic {
-  def valueModification(move: Move, item: NormalizedContentsItem) : Double = {
+  def valueModification(move: Move) : Double = {
     move match {
-      case MoveOn(x) => item.value
-      case MoveOff(x) => item.value * -1.0
+      case MoveOn(x) => x.value
+      case MoveOff(x) => x.value * -1.0
     }
   }
-  def weightModification(move: Move, item: NormalizedContentsItem) : Double = {
+  def weightModification(move: Move, knapsack: List[ContentsItem], capacity: Weight) : Double = {
     move match {
-      case MoveOn(x) => item.totalWeight
-      case MoveOff(x) => item.totalWeight * -1.0
+      case MoveOn(x) => x.totalWeight
+      case MoveOff(x) => x.totalWeight * -1.0
     }
+  }
+  override def prepareItems(knapsack: List[ContentsItem], leftover: List[ContentsItem]) = {
+    Normalizator.createNormalizedItems(knapsack, leftover)
   }
 }
 
 case class TabuParameters(knapsack: List[ContentsItem], leftovers: List[ContentsItem], capacity: Weight, alpha: Double, tabuQueue: Queue[Move], resultsProcessor: Actor)
 case class InternalTabuParameters(knapsack: List[NormalizedContentsItem], leftovers: List[NormalizedContentsItem], capacity: Weight, alpha: Double, tabuQueue: Queue[Move], resultsProcessor: Actor)
 
-class TabuAlgorithm(timeout: Long, initialSort: List[ContentsItem] => List[ContentsItem]) extends Algorithm {
+class TabuAlgorithm(timeout: Long, initialSort: List[ContentsItem] => List[ContentsItem], logic: Logic = SimpleModifications) extends Algorithm {
   val startTime = System.currentTimeMillis
   val queueMaxSize = 15
   var bestValue: Int = 0
@@ -65,7 +75,7 @@ class TabuAlgorithm(timeout: Long, initialSort: List[ContentsItem] => List[Conte
   }
 
   private def createInternalTabuParameters(tabuParams : TabuParameters) : InternalTabuParameters = {
-    val normalizedItems = Simplifier.createSimplifiedItems(tabuParams.knapsack, tabuParams.leftovers)
+    val normalizedItems = logic.prepareItems(tabuParams.knapsack, tabuParams.leftovers)
     InternalTabuParameters(normalizedItems._1, normalizedItems._2, tabuParams.capacity, tabuParams.alpha, tabuParams.tabuQueue, tabuParams.resultsProcessor)
   }
 
@@ -80,7 +90,7 @@ class TabuAlgorithm(timeout: Long, initialSort: List[ContentsItem] => List[Conte
   private def convertNormalizedItemListToItemList(normalizedItems: List[NormalizedContentsItem]) = normalizedItems.map(_.item)
 
   private def move(param: InternalTabuParameters): InternalTabuParameters = {
-    val filler = new TabuFiller(param.knapsack, param.leftovers, param.capacity, param.alpha, SimpleModifications)
+    val filler = new TabuFiller(param.knapsack, param.leftovers, param.capacity, param.alpha, logic)
     val thisMove: Move = filler.nextMove
     thisMove match {
       case MoveOn(x) => {
@@ -141,7 +151,7 @@ class TabuFiller(knapsack: List[NormalizedContentsItem], leftovers: List[Normali
   val tabuQueue: Queue[Move] = new Queue()
 
   private def calculateHeuristic(move: Move) : Double = {
-    SimpleModifications.valueModification(move, move.item.item) - (SimpleModifications.weightModification(move, move.item.item, knapsack.map(_.item), capacity) * alpha)
+    logic.valueModification(move) - (logic.weightModification(move, knapsack.map(_.item), capacity) * alpha)
   }
 
   def nextMove() : Move = {
