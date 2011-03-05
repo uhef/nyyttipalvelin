@@ -9,9 +9,9 @@ case object Second extends Scarcest { val getIndex = 1 }
 case object Third extends Scarcest { val getIndex = 2 }
 
 class BruteForceFillerAlgorithm extends Algorithm {
-  private var recursions: Int = 0;
-
   def internalPack(items: List[ContentsItem], capacity: Weight) = items
+
+  private var resultsProcessor : Actor = null
 
   def pack(items: List[ContentsItem], capacity: Weight, resultsProcessor: Actor) = {
     val sorter = new ItemAverageWeightsSorter
@@ -19,16 +19,23 @@ class BruteForceFillerAlgorithm extends Algorithm {
     optimizeKnapsack(initialKnapsack, items.filterNot(initialKnapsack.contains(_)), capacity, resultsProcessor)
   }
 
-  def optimizeKnapsack(knapsack : List[ContentsItem], leftovers : List[ContentsItem], capacity : Weight, resultsProcessor: Actor) : List[ContentsItem] = {
-    recursions = recursions + 1
-    if (recursions > 900) { // Close to stack overflow...
+  def optimizeKnapsack(knapsack : List[ContentsItem], leftovers : List[ContentsItem], capacity : Weight, resultProcessor: Actor) : List[ContentsItem] = {
+      resultsProcessor = resultProcessor
+      optimizeKnapsack(knapsack, leftovers, capacity, 0)
+  }
+
+  @scala.annotation.tailrec
+  private def optimizeKnapsack(knapsack : List[ContentsItem], leftovers : List[ContentsItem], capacity : Weight, acc : Int) : List[ContentsItem] = {
+    if (acc % 200 == 0) { // Close to stack overflow...
       val tabuAlgorithm: TabuAlgorithm = new TabuAlgorithm(5000, (new WeightSumSorter).internalPack(_, capacity))
       val initialParameters = TabuParameters(knapsack, leftovers, capacity, 1.0, new Queue[Move](), resultsProcessor)
       tabuAlgorithm.optimize(initialParameters)
-      return knapsack
     }
     if (leftovers.isEmpty || knapsack.isEmpty) {
       resultsProcessor ! ResultMessage(name + "empty-leftovers", knapsack)
+      return knapsack
+    }
+    if(acc == 10000){
       return knapsack
     }
 
@@ -46,10 +53,10 @@ class BruteForceFillerAlgorithm extends Algorithm {
       if (ValueUtils.calculateListValue(itemsToBeReplaced) < candidateToAdd.value) {
         val newKnapsack = remainersInKnapsack :+ candidateToAdd
         resultsProcessor ! ResultMessage(name + "-optimised", newKnapsack)
-        return optimizeKnapsack(newKnapsack, sortedLeftovers.tail ::: itemsToBeReplaced, capacity, resultsProcessor)
+        optimizeKnapsack(newKnapsack, sortedLeftovers.tail ::: itemsToBeReplaced, capacity, acc + 1)
       }
     }
-    optimizeKnapsack(sortedKnapsack, sortedLeftovers.tail, capacity, resultsProcessor)
+    optimizeKnapsack(sortedKnapsack, sortedLeftovers.tail, capacity, acc + 1)
   }
 
   def weightAvailable(items: List[ContentsItem], capacity: Weight) : List[Int] = {
