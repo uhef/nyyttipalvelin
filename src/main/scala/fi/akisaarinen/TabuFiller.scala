@@ -94,6 +94,8 @@ class TabuAlgorithm(timeout: Long) extends Algorithm {
     }
   }
 
+  override def name = super.name + "-queueSize-" + queueMaxSize
+
   def internalPack(items: List[ContentsItem], capacity: Weight) = null
 }
 
