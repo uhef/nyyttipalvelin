@@ -4,26 +4,39 @@ import scala.collection.mutable.Queue
 import collection.immutable.List
 import actors.Actor
 
-sealed abstract class Move(item : ContentsItem) {
-  def valueModification(knapsack : List[ContentsItem]) : Double
-  def weightModification(knapsack : List[ContentsItem], capacity : Weight) : Double
+sealed abstract class Move(val item: ContentsItem)
+case class MoveOn(override val item: ContentsItem) extends Move(item)
+case class MoveOff(override val item: ContentsItem) extends Move(item)
+
+object SimpleModifications {
+  private def calculateTotalWeight(item: ContentsItem) = scala.math.sqrt(item.weight.map(scala.math.pow(_, 2)).sum)
+
+  def valueModification(move: Move, item: ContentsItem) : Double = {
+    move match {
+      case MoveOn(x) => x.value
+      case MoveOff(x) => x.value * -1.0
+    }
+  }
+  def weightModification(move: Move, item: ContentsItem, knapsack: List[ContentsItem], capacity: Weight) : Double = {
+    move match {
+      case MoveOn(x) => { if (capacity.fits(Weight(WeightUtils.totalWeight(item :: knapsack)))) { 0 } else calculateTotalWeight(x) }
+      case MoveOff(x) => calculateTotalWeight(x) * -1.0
+    }
+  }
 }
-case class MoveOn(item: ContentsItem) extends Move(item) {
-  def valueModification(knapsack : List[ContentsItem]) : Double = {
-    item.value
+
+object NormalizedModifications {
+  def valueModification(move: Move, item: NormalizedContentsItem) : Double = {
+    move match {
+      case MoveOn(x) => item.value
+      case MoveOff(x) => item.value * -1.0
+    }
   }
-  def weightModification(knapsack : List[ContentsItem], capacity : Weight) : Double = {
-    if (capacity.fits(Weight(WeightUtils.totalWeight(item :: knapsack)))) {
-      0
-    } else scala.math.sqrt(item.weight.map(scala.math.pow(_, 2)).sum)
-  }
-}
-case class MoveOff(item : ContentsItem) extends Move(item) {
-  def valueModification(knapsack : List[ContentsItem]) : Double = {
-    item.value * -1.0
-  }
-  def weightModification(knapsack : List[ContentsItem], capacity : Weight) : Double = {
-    scala.math.sqrt(item.weight.map(scala.math.pow(_, 2)).sum) * -1.0
+  def weightModification(move: Move, item: NormalizedContentsItem) : Double = {
+    move match {
+      case MoveOn(x) => item.totalWeight
+      case MoveOff(x) => item.totalWeight * -1.0
+    }
   }
 }
 
@@ -115,7 +128,7 @@ class TabuFiller(knapsack: List[ContentsItem], leftovers: List[ContentsItem], ca
   val tabuQueue: Queue[Move] = new Queue()
 
   private def calculateHeuristic(move: Move) : Double = {
-    move.valueModification(knapsack) - (move.weightModification(knapsack, capacity) * alpha)
+    SimpleModifications.valueModification(move, move.item) - (SimpleModifications.weightModification(move, move.item, knapsack, capacity) * alpha)
   }
 
   def nextMove() : Move = {

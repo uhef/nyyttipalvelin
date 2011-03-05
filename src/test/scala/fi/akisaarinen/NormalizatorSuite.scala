@@ -3,7 +3,6 @@ package fi.akisaarinen
 import org.scalatest.FunSuite
 import org.scalatest.matchers.ShouldMatchers
 import math.sqrt
-import fi.akisaarinen.Normalizator
 
 class NormalizatorSuite extends FunSuite with ShouldMatchers {
   private def createItem(weight: List[Int], v: Int) : ContentsItem = {
