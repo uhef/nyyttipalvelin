@@ -31,8 +31,8 @@ class BruteForceFillerAlgorithm(timeout: Long) extends Algorithm {
     if (System.currentTimeMillis > startTime + timeout) {
       return knapsack
     }
-    if (acc % 200 == 0 || acc == 900) { // Close to stack overflow...
-      val tabuAlgorithm: TabuAlgorithm = new TabuAlgorithm(5000, (new WeightSumSorter).internalPack(_, capacity))
+    if (acc % 100 == 0 || acc == 900) { // Close to stack overflow...
+      val tabuAlgorithm: TabuAlgorithm = new TabuAlgorithm(7000, (new WeightSumSorter).internalPack(_, capacity))
       val initialParameters = TabuParameters(knapsack, leftovers, capacity, 1.0, new Queue[Move](), resultsProcessor)
       tabuAlgorithm.optimize(initialParameters)
     }
@@ -40,7 +40,7 @@ class BruteForceFillerAlgorithm(timeout: Long) extends Algorithm {
       resultsProcessor ! ResultMessage(name + "empty-leftovers", knapsack)
       return knapsack
     }
-    if(acc == 10000){
+    if(acc == 100000){
       return knapsack
     }
 

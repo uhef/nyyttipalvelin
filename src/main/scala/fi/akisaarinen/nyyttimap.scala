@@ -29,7 +29,7 @@ object Nyyttimap {
   type SortAlgorithm = List[ContentsItem] => List[ContentsItem]
   type ResultsOfAlgorithms = List[List[ContentsItem]]
 
-  val safetyMarginMillis = 10000;
+  val safetyMarginMillis = 5000;
   val logFile = new File("Nyyttilog-" + System.currentTimeMillis + ".txt")
 
   def max(x: Long, y: Long) = if(x >= y) x else y
