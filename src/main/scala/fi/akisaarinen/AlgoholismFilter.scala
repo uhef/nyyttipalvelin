@@ -102,6 +102,10 @@ case class ContentsItem(id: String, weight: List[Int], value: Int) {
   def contentsWeight = Weight(weight)
 }
 
+case class NormalizedContentsItem(item: ContentsItem, totalWeight: Double, value: Double) {
+
+}
+
 case class KnapsackRequest(name: String, timeout: Int, contents: List[ContentsItem], capacity: List[Int]) {
   def capacityAsWeight = Weight(capacity)
 }
