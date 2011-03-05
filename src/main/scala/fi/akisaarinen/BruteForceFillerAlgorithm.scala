@@ -12,6 +12,15 @@ case object Fourth extends Scarcest { val getIndex = 3 }
 class BruteForceFillerAlgorithm(timeout: Long) extends Algorithm {
   def internalPack(items: List[ContentsItem], capacity: Weight) = items
 
+  var running = true
+  val tabuAlgorithms = new scala.collection.mutable.MutableList[TabuAlgorithm]
+
+  override def shutDown {
+    println("Shutdown " + name)
+    tabuAlgorithms.foreach(_.shutDown)
+    running = false
+  }
+
   private var resultsProcessor : Actor = null
   private var startTime = System.currentTimeMillis
 
@@ -29,11 +38,12 @@ class BruteForceFillerAlgorithm(timeout: Long) extends Algorithm {
 
   @scala.annotation.tailrec
   private def optimizeKnapsack(knapsack : List[ContentsItem], leftovers : List[ContentsItem], capacity : Weight, acc : Int) : List[ContentsItem] = {
-    if (System.currentTimeMillis > startTime + timeout) {
+    if (!running || System.currentTimeMillis > startTime + timeout) {
       return knapsack
     }
     if (acc % 100 == 0 || acc == 900) { // Close to stack overflow...
       val tabuAlgorithm: TabuAlgorithm = new TabuAlgorithm(7000, (new WeightSumSorter).internalPack(_, capacity))
+      tabuAlgorithms += tabuAlgorithm
       val initialParameters = TabuParameters(knapsack, leftovers, capacity, 1.0, new Queue[Move](), resultsProcessor)
       tabuAlgorithm.optimize(initialParameters)
     }

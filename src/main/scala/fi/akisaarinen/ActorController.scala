@@ -21,6 +21,8 @@ trait Algorithm {
 
   def pack(items: List[ContentsItem], capacity: Weight, resultsProcessor: Actor)
 
+  def shutDown = println("Shutdown" + name)
+
   def iterateUntilFull(capacity: Weight, knapsack: List[ContentsItem], remainingList: List[ContentsItem]): List[ContentsItem] = {
     remainingList match {
       case Nil => knapsack

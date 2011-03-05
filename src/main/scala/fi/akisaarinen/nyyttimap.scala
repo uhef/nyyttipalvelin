@@ -56,7 +56,10 @@ object Nyyttimap {
           if(ValueUtils.calculateListValue(newResult.payload) >= ValueUtils.calculateListValue(currentBest.payload)) receiveNext(newResult)
             else receiveNext(currentBest)
         }
-        case TimeoutMessage => List(currentBest.payload)
+        case TimeoutMessage => {
+          algorithms.foreach(_.shutDown)
+          List(currentBest.payload)
+        }
       }
     }
     receiveNext(ResultMessage("empty", List[ContentsItem]()))

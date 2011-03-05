@@ -33,6 +33,12 @@ class TabuAlgorithm(timeout: Long, initialSort: List[ContentsItem] => List[Conte
   val startTime = System.currentTimeMillis
   val queueMaxSize = 15
   var bestValue: Int = 0
+  var running =true
+
+  override def shutDown {
+    println("Shutdown " + getClass.getSimpleName)
+    running = false
+  }
 
   def pack(items: List[ContentsItem], capacity: Weight, resultsProcessor: Actor) = {
     val initialSortedItems: List[ContentsItem] = initialSort(items)
@@ -44,7 +50,7 @@ class TabuAlgorithm(timeout: Long, initialSort: List[ContentsItem] => List[Conte
 
   def optimize(_nextParameters: TabuParameters): Unit = {
     var nextParameters: TabuParameters = _nextParameters
-    while (System.currentTimeMillis < startTime + timeout) {
+    while (running && (System.currentTimeMillis < startTime + timeout)) {
       nextParameters = move(nextParameters)
     }
   }
