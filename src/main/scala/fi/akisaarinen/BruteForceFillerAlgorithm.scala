@@ -22,7 +22,7 @@ class BruteForceFillerAlgorithm extends Algorithm {
   def optimizeKnapsack(knapsack : List[ContentsItem], leftovers : List[ContentsItem], capacity : Weight, resultsProcessor: Actor) : List[ContentsItem] = {
     recursions = recursions + 1
     if (recursions > 900) { // Close to stack overflow...
-      val tabuAlgorithm: TabuAlgorithm = new TabuAlgorithm(5000)
+      val tabuAlgorithm: TabuAlgorithm = new TabuAlgorithm(5000, (new WeightSumSorter).internalPack(_, capacity))
       val initialParameters = TabuParameters(knapsack, leftovers, capacity, 1.0, new Queue[Move](), resultsProcessor)
       tabuAlgorithm.optimize(initialParameters)
       return knapsack

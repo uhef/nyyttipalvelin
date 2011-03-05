@@ -50,7 +50,7 @@ class ActorController {
     val capacitySorter = new CapacityDimensionWeightedSorter
     val itemAverageWeightSorter = new ItemAverageWeightsSorter
     val brute = new BruteForceFillerAlgorithm
-    val tabu = new TabuAlgorithm(timeout - 10000)
+    val tabu = new TabuAlgorithm(timeout - 10000, (new WeightSumSorter).internalPack(_, capacity))
     val algorithms: List[Algorithm] = List(weightSorter, capacitySorter, itemAverageWeightSorter, brute, tabu)
     filterFittingItems(items, capacity) match {
       case Some(filteredItems) => {

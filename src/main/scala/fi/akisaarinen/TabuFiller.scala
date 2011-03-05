@@ -29,13 +29,13 @@ case class MoveOff(item : ContentsItem) extends Move(item) {
 
 case class TabuParameters(knapsack: List[ContentsItem], leftovers: List[ContentsItem], capacity: Weight, alpha: Double, tabuQueue: Queue[Move], resultsProcessor: Actor)
 
-class TabuAlgorithm(timeout: Long) extends Algorithm {
+class TabuAlgorithm(timeout: Long, initialSort: List[ContentsItem] => List[ContentsItem]) extends Algorithm {
   val startTime = System.currentTimeMillis
   val queueMaxSize = 15
   var bestValue: Int = 0
 
   def pack(items: List[ContentsItem], capacity: Weight, resultsProcessor: Actor) = {
-    val initialSortedItems: List[ContentsItem] = (new WeightSumSorter).internalPack(items, capacity)
+    val initialSortedItems: List[ContentsItem] = initialSort(items)
     val initialKnapsack = iterateUntilFull(capacity, Nil, initialSortedItems)
     val initialLeftovers = initialSortedItems.filterNot(initialKnapsack.contains(_))
     val initialParameters = TabuParameters(initialKnapsack, initialLeftovers, capacity, 1.0, new Queue[Move](), resultsProcessor)
