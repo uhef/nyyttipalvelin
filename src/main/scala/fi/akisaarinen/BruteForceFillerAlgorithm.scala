@@ -7,6 +7,7 @@ sealed abstract class Scarcest { def getIndex : Int }
 case object First extends Scarcest { val getIndex = 0 }
 case object Second extends Scarcest { val getIndex = 1 }
 case object Third extends Scarcest { val getIndex = 2 }
+case object Fourth extends Scarcest { val getIndex = 3 }
 
 class BruteForceFillerAlgorithm(timeout: Long) extends Algorithm {
   def internalPack(items: List[ContentsItem], capacity: Weight) = items
@@ -90,6 +91,7 @@ class BruteForceFillerAlgorithm(timeout: Long) extends Algorithm {
       case First => { knapsack.sortWith(sortByContentWeightValue(0)) }
       case Second => { knapsack.sortWith(sortByContentWeightValue(1)) }
       case Third => { knapsack.sortWith(sortByContentWeightValue(2)) }
+      case Fourth => { knapsack.sortWith(sortByContentWeightValue(3)) }
       case _ => knapsack
     }
   }
@@ -101,15 +103,18 @@ class BruteForceFillerAlgorithm(timeout: Long) extends Algorithm {
   }
 
   def calculateDimensionWhichIsScarcest(knapsack : List[ContentsItem], capacity : Weight) : Scarcest = {
-    var first, second, third = Int.MaxValue
+    var first, second, third, fourth = Int.MaxValue
     first = getCapacityConstraint(0, capacity, knapsack)
     if(capacity.dimensions.size > 1)
       second = getCapacityConstraint(1, capacity, knapsack)
     if(capacity.dimensions.size > 2)
       third = getCapacityConstraint(2, capacity, knapsack)
-    if(first < second && first < third) return First
-    if(second < first &&  second < third) return Second
-    if(third < first && third < second) return Third
-    Third
+    if(capacity.dimensions.size > 3)
+      fourth = getCapacityConstraint(3, capacity, knapsack)
+    if(first < second && first < third && first < fourth) return First
+    if(second < first &&  second < third && second < fourth) return Second
+    if(third < first && third < second && third < fourth) return Third
+    if(fourth < first && fourth < second && fourth < third) return Fourth
+    Fourth
   }
 }

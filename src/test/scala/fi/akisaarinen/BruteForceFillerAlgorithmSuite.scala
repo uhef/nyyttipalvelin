@@ -24,7 +24,7 @@ class BruteForceFillerAlgorithmSuite extends FunSuite with ShouldMatchers {
 
   test("BruteForce filler should find if no dimension is scarcest") {
      val result = controller.calculateDimensionWhichIsScarcest(List(createItem(List(1,2,3), 3), createItem(List(2,3,4), 5)), Weight(List(3,43,7)))
-     result should equal (Third)
+     result should equal (Fourth)
   }
 
    test("BruteForce filler should order based on the scarcest dimension") {
