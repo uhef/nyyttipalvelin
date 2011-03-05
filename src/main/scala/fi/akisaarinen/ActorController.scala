@@ -50,9 +50,22 @@ class ActorController {
     val capacitySorter = new CapacityDimensionWeightedSorter
     val itemAverageWeightSorter = new ItemAverageWeightsSorter
     val brute = new BruteForceFillerAlgorithm
-    val algorithms: List[Algorithm] = List(weightSorter, capacitySorter, itemAverageWeightSorter, brute)
+    val tabu = new TabuAlgorithm(timeout - 10000)
+    val algorithms: List[Algorithm] = List(weightSorter, capacitySorter, itemAverageWeightSorter, brute, tabu)
     filterFittingItems(items, capacity) match {
-      case Some(filteredItems) => ValueUtils.bestList(Nyyttimap.runAlgorithms(filteredItems, algorithms, capacity, timeout))
+      case Some(filteredItems) => {
+        val resultsOfAlgorithms: Nyyttimap.ResultsOfAlgorithms = Nyyttimap.runAlgorithms(filteredItems, algorithms, capacity, timeout)
+        val tooLargeResults: Nyyttimap.ResultsOfAlgorithms = resultsOfAlgorithms.filterNot(x => { capacity.fits(Weight(WeightUtils.totalWeight(x)))} )
+        tooLargeResults match {
+          case Nil =>
+          case tooLarge: Nyyttimap.ResultsOfAlgorithms => println("Error! Too large results, capacity == " + capacity + ", " + tooLarge.map(WeightUtils.totalWeight(_)))
+        }
+        val resultsWithoutTooLarge = resultsOfAlgorithms.filterNot(list => tooLargeResults.contains(list))
+        val bestResults: List[ContentsItem] = ValueUtils.bestList(resultsWithoutTooLarge)
+        println("Capacity: " + capacity)
+        println("Total weight: " + WeightUtils.totalWeight(bestResults))
+        bestResults
+      }
       case None => List()
     }
   }
