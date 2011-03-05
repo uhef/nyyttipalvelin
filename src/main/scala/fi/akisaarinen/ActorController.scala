@@ -26,7 +26,7 @@ trait Algorithm {
       case Nil => knapsack
       case nextItem :: remainingItems => {
         val knapsackPlusNew = nextItem :: knapsack
-        val totalWeight = knapsackPlusNew.map(_.contentsWeight).foldLeft(Weight(List(0,0,0)))(_.plus(_))
+        val totalWeight = knapsackPlusNew.map(_.contentsWeight).foldLeft(Weight(List(0,0,0,0)))(_.plus(_))
         if (capacity.fits(totalWeight)) {
           iterateUntilFull(capacity, knapsackPlusNew, remainingItems)
         } else {
@@ -69,6 +69,11 @@ class ActorController {
         val bestResults: List[ContentsItem] = ValueUtils.bestList(resultsWithoutTooLarge)
         println("Capacity: " + capacity)
         println("Total weight: " + WeightUtils.totalWeight(bestResults))
+        if (Environment.debug) {
+          Nyyttimap.withPrintWriter(
+            Nyyttimap.logFile, writer => writer.println("Capacity: " + capacity + ", total weight: " + WeightUtils.totalWeight(bestResults))
+          )
+        }
         bestResults
       }
       case None => List()
