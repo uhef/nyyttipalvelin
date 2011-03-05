@@ -62,7 +62,7 @@ object Nyyttimap {
     receiveNext(ResultMessage("empty", List[ContentsItem]()))
   }
 
-  private def withPrintWriter(file: File, op: PrintWriter => Unit) {
+  def withPrintWriter(file: File, op: PrintWriter => Unit) {
     val writer = if (file.exists) {
       new PrintWriter(new BufferedWriter(new OutputStreamWriter(new FileOutputStream(file, true))), false)
           } else {

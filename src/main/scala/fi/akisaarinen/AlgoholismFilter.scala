@@ -10,6 +10,7 @@ import net.liftweb.json.JsonParser._
 import scala.actors._
 import scala.actors.Actor._
 import net.liftweb.json.JsonAST.JValue
+import java.lang.String
 
 class AlgoholismFilter extends ScalatraFilter {
 
@@ -71,7 +72,11 @@ class AlgoholismFilter extends ScalatraFilter {
     val controller = new ActorController
     val results = controller.chooseItemsToKnapsack(req.contents, req.capacityAsWeight, req.timeout)
     if (Environment.debug) {
-      println("Total value: " + ValueUtils.calculateListValue(results))
+      val message: String = "Total value: " + ValueUtils.calculateListValue(results)
+      println(message)
+      Nyyttimap.withPrintWriter(
+        Nyyttimap.logFile, writer => writer.println(message)
+      )
     }
     results.map(_.id)
   }
