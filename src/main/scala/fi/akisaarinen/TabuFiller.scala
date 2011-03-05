@@ -38,7 +38,12 @@ class TabuAlgorithm(timeout: Long) extends Algorithm {
     val initialSortedItems: List[ContentsItem] = (new WeightSumSorter).internalPack(items, capacity)
     val initialKnapsack = iterateUntilFull(capacity, Nil, initialSortedItems)
     val initialLeftovers = initialSortedItems.filterNot(initialKnapsack.contains(_))
-    var nextParameters = TabuParameters(initialKnapsack, initialLeftovers, capacity, 1.0, new Queue[Move](), resultsProcessor)
+    val initialParameters = TabuParameters(initialKnapsack, initialLeftovers, capacity, 1.0, new Queue[Move](), resultsProcessor)
+    optimize(initialParameters)
+  }
+
+  def optimize(_nextParameters: TabuParameters): Unit = {
+    var nextParameters: TabuParameters = _nextParameters
     while (System.currentTimeMillis < startTime + timeout) {
       nextParameters = move(nextParameters)
     }

@@ -1,6 +1,7 @@
 package fi.akisaarinen
 
 import scala.actors.Actor
+import collection.mutable.Queue
 
 sealed abstract class Scarcest { def getIndex : Int }
 case object First extends Scarcest { val getIndex = 0 }
@@ -8,6 +9,7 @@ case object Second extends Scarcest { val getIndex = 1 }
 case object Third extends Scarcest { val getIndex = 2 }
 
 class BruteForceFillerAlgorithm extends Algorithm {
+  private var recursions: Int = 0;
 
   def internalPack(items: List[ContentsItem], capacity: Weight) = items
 
@@ -18,6 +20,13 @@ class BruteForceFillerAlgorithm extends Algorithm {
   }
 
   def optimizeKnapsack(knapsack : List[ContentsItem], leftovers : List[ContentsItem], capacity : Weight, resultsProcessor: Actor) : List[ContentsItem] = {
+    recursions = recursions + 1
+    if (recursions > 900) { // Close to stack overflow...
+      val tabuAlgorithm: TabuAlgorithm = new TabuAlgorithm(5000)
+      val initialParameters = TabuParameters(knapsack, leftovers, capacity, 1.0, new Queue[Move](), resultsProcessor)
+      tabuAlgorithm.optimize(initialParameters)
+      return knapsack
+    }
     if (leftovers.isEmpty || knapsack.isEmpty) {
       resultsProcessor ! ResultMessage(name + "empty-leftovers", knapsack)
       return knapsack
