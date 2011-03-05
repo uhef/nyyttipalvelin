@@ -26,7 +26,7 @@ class BruteForceFillerAlgorithm extends Algorithm {
 
   @scala.annotation.tailrec
   private def optimizeKnapsack(knapsack : List[ContentsItem], leftovers : List[ContentsItem], capacity : Weight, acc : Int) : List[ContentsItem] = {
-    if (acc % 200 == 0) { // Close to stack overflow...
+    if (acc % 200 == 0 || acc == 900) { // Close to stack overflow...
       val tabuAlgorithm: TabuAlgorithm = new TabuAlgorithm(5000, (new WeightSumSorter).internalPack(_, capacity))
       val initialParameters = TabuParameters(knapsack, leftovers, capacity, 1.0, new Queue[Move](), resultsProcessor)
       tabuAlgorithm.optimize(initialParameters)
