@@ -4,7 +4,7 @@ import org.scalatest.FunSuite
 import org.scalatest.matchers.ShouldMatchers
 
 class BruteForceFillerAlgorithmSuite extends FunSuite with ShouldMatchers {
-  val controller = new BruteForceFillerAlgorithm
+  val controller = new BruteForceFillerAlgorithm(5000)
   private def createItem(weight: List[Int], v: Int) : ContentsItem = {
      new ContentsItem("foo", weight, v)
   }

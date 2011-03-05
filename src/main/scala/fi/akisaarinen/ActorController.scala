@@ -49,7 +49,7 @@ class ActorController {
     val weightSorter = new WeightSumSorter
     val capacitySorter = new CapacityDimensionWeightedSorter
     val itemAverageWeightSorter = new ItemAverageWeightsSorter
-    val brute = new BruteForceFillerAlgorithm
+    val brute = new BruteForceFillerAlgorithm(timeout - 10000)
     val weightToTabu = new TabuAlgorithm(timeout - 10000, (new WeightSumSorter).internalPack(_, capacity))
     val capaToTabu = new TabuAlgorithm(timeout - 10000, (new CapacityDimensionWeightedSorter).internalPack(_, capacity))
     val itemAvgToTabu = new TabuAlgorithm(timeout - 10000, (new ItemAverageWeightsSorter).internalPack(_, capacity))

@@ -8,10 +8,11 @@ case object First extends Scarcest { val getIndex = 0 }
 case object Second extends Scarcest { val getIndex = 1 }
 case object Third extends Scarcest { val getIndex = 2 }
 
-class BruteForceFillerAlgorithm extends Algorithm {
+class BruteForceFillerAlgorithm(timeout: Long) extends Algorithm {
   def internalPack(items: List[ContentsItem], capacity: Weight) = items
 
   private var resultsProcessor : Actor = null
+  private var startTime = System.currentTimeMillis
 
   def pack(items: List[ContentsItem], capacity: Weight, resultsProcessor: Actor) = {
     val sorter = new ItemAverageWeightsSorter
@@ -21,11 +22,15 @@ class BruteForceFillerAlgorithm extends Algorithm {
 
   def optimizeKnapsack(knapsack : List[ContentsItem], leftovers : List[ContentsItem], capacity : Weight, resultProcessor: Actor) : List[ContentsItem] = {
       resultsProcessor = resultProcessor
+      startTime = System.currentTimeMillis
       optimizeKnapsack(knapsack, leftovers, capacity, 0)
   }
 
   @scala.annotation.tailrec
   private def optimizeKnapsack(knapsack : List[ContentsItem], leftovers : List[ContentsItem], capacity : Weight, acc : Int) : List[ContentsItem] = {
+    if (System.currentTimeMillis > startTime + timeout) {
+      return knapsack
+    }
     if (acc % 200 == 0 || acc == 900) { // Close to stack overflow...
       val tabuAlgorithm: TabuAlgorithm = new TabuAlgorithm(5000, (new WeightSumSorter).internalPack(_, capacity))
       val initialParameters = TabuParameters(knapsack, leftovers, capacity, 1.0, new Queue[Move](), resultsProcessor)
