@@ -1,4 +1,5 @@
 Nyyttipalvelin is a Multidimensional Knapsack Problem solver written in Scala.
+Implemented in Reaktor (www.reaktor.fi) algorithm code camp March, 2011.
 
 Nyyttipalvelin listens for HTTP post requests that deliver the Knapsack
 problem in JSON format. It uses Scalatra for HTTP protocol implementation.
