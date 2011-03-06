@@ -32,7 +32,7 @@ trait Algorithm {
         if (capacity.fits(totalWeight)) {
           iterateUntilFull(capacity, knapsackPlusNew, remainingItems)
         } else {
-          knapsack
+          iterateUntilFull(capacity, knapsack, remainingItems)
         }
       }
     }
