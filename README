@@ -1,12 +1,11 @@
-Nyyttipalvelin is a server for solving Multidimensional Knapsack Problems.
-It is written in Scala and uses Scalatra as HTTP server implementation.
+Nyyttipalvelin is a Multidimensional Knapsack Problem solver written in Scala.
 
 Nyyttipalvelin listens for HTTP post requests that deliver the Knapsack
-problem in JSON format to the server.
+problem in JSON format. It uses Scalatra for HTTP protocol implementation.
 
-The request contains name of the challenge, timeout (in milliseconds) in which
-the server has to respond to the request, list of items that can be used 
-to fill the knapsack with and the capacity of the knapsack. Each item
+The received request contains name of the challenge, timeout (in milliseconds)
+in which the server has to respond to the request, list of items that can be
+used to fill the knapsack with and the capacity of the knapsack. Each item
 is composed of its id, its weight (dimensions) and its value.
 
 Server aims to calculate a filled knapsack in which the total value of
@@ -21,12 +20,12 @@ calculate solutions to the problem. All algorithms are ran in parallel
 leveraging Scala's actor - paradigm.
 
 Some algorithms calculate one solution to the problem and return that
-immediatelly to the controller actor (greedy algorithms) while other
-algorithms (like the tabu filler) create new knapsack solutions in a busy
-loop sending any new solutions that are better than its so far best 
-result to the controller actor.
+immediatelly to the controller actor while other algorithms (like the tabu
+filler) improve their knapsack solutions for as long as they can sending
+any new solutions that are better than their so far best result to the
+controller actor.
 
 Once the timeout that was passed in request is reached the controller actor
-shuts down all algorithm actors that are still calculating and return the
+shuts down all algorithm actors that are still processing and return the
 best received solution in the response.
 
